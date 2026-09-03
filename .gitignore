@@ -1,0 +1,13 @@
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Logs / temp
+*.log
+*.tmp

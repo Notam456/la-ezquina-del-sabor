@@ -1,0 +1,581 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 8.1 — Historial de Ventas
+  Consulta de ventas con filtros (fecha, método de pago, cliente, estado), paginación y exportación.
+  Vista Lista (DESIGN.md §7). Shell común.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ventas e histórico · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 40px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+
+  .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+  .f-field { display: flex; flex-direction: column; gap: 5px; }
+  .f-field .f-label { font-size: 12px; font-weight: 600; color: var(--fg-2); }
+  .search-box { flex: 1; min-width: 170px; position: relative; }
+  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
+  .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 9px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .input-brand { width: 100%; padding-left: 34px; }
+  .select-brand { width: auto; min-width: 140px; }
+  .date-brand { width: 150px; }
+  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .filter-actions { display: flex; gap: 8px; margin-left: auto; align-items: center; }
+  .filter-count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+
+  .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); overflow: hidden; }
+  .table-responsive { overflow-x: auto; }
+  table.vent { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.vent thead th { position: sticky; top: 0; background: var(--bg); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.vent tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.vent tbody tr:last-child td { border-bottom: 0; }
+  table.vent tbody tr { transition: background var(--motion-fast) var(--ease-out); cursor: pointer; }
+  table.vent tbody tr:hover { background: var(--surface-sunken); }
+  .col-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .fecha { font-family: var(--font-mono); font-size: 13px; color: var(--fg-2); }
+  .fecha .hora { display: block; font-size: 11px; color: var(--meta); }
+  .ncom { font-family: var(--font-display); font-weight: 600; color: var(--accent-ghost); font-size: 15px; }
+  .cli { font-weight: 500; color: var(--fg); }
+  .cli .anoni { color: var(--muted); font-weight: 400; }
+  .prod { font-size: 12.5px; color: var(--muted); }
+  .metodo { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .metodo.efectivo { background: var(--success-soft); color: var(--success); }
+  .metodo.punto { background: var(--info-soft); color: var(--info); }
+  .metodo.transferencia { background: var(--accent-soft); color: var(--accent-ghost); }
+  .metodo.fiado { background: var(--danger-soft); color: var(--danger); }
+  .usd { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .bs { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .estado { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+  .estado.pagada { background: var(--success-soft); color: var(--success); }
+  .estado.credito { background: var(--warn-soft); color: var(--warn); }
+  .row-actions { display: inline-flex; gap: 4px; }
+  .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid transparent; background: transparent; color: var(--muted); display: inline-grid; place-items: center; font-size: 14px; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .icon-btn:hover { background: var(--surface-sunken); color: var(--fg); border-color: var(--border-strong); }
+  .icon-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .icon-btn.imprimir:hover { border-color: var(--info); color: var(--info); background: var(--info-soft); }
+
+  .pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .pager-info { font-size: 13px; color: var(--muted); }
+  .pager-info strong { color: var(--fg); font-family: var(--font-mono); }
+  .pager-controls { display: flex; gap: 6px; }
+  .page-btn { min-width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--fg-2); font-weight: 600; font-size: 13px; display: inline-grid; place-items: center; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .page-btn:hover:not(:disabled):not(.current) { border-color: var(--fg-2); color: var(--fg); }
+  .page-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .page-btn.current { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .vacio { padding: 48px 20px; text-align: center; color: var(--meta); font-size: 14px; }
+
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (max-width: 767.98px) { .filter-bar { flex-direction: column; align-items: stretch; } .select-brand, .date-brand { width: 100%; min-width: 0; } .filter-actions { margin-left: 0; } table.vent { min-width: 900px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item active" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip"><span class="tasa-label">Tasa BCV</span><span>Bs 42,50 / USD</span></span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <div class="page-head">
+          <div>
+            <p class="page-eyebrow">Operación · Histórico</p>
+            <h1 class="page-title">Historial de ventas</h1>
+            <p class="page-sub">Consulta y filtra todas las ventas registradas.</p>
+          </div>
+          <div class="head-actions">
+            <button type="button" class="btn-ghost-brand" id="btnExportar"><i class="bi bi-download"></i> Exportar listado</button>
+          </div>
+        </div>
+
+        <div class="filter-bar" data-od-id="filtros">
+          <div class="f-field">
+            <span class="f-label">Desde</span>
+            <input type="date" class="input-brand date-brand" id="fDesde" />
+          </div>
+          <div class="f-field">
+            <span class="f-label">Hasta</span>
+            <input type="date" class="input-brand date-brand" id="fHasta" />
+          </div>
+          <div class="f-field">
+            <span class="f-label">Método de pago</span>
+            <select class="select-brand" id="fMetodo" aria-label="Filtrar por método de pago">
+              <option value="">Todos</option>
+              <option>Efectivo</option>
+              <option>Punto</option>
+              <option>Transferencia</option>
+              <option>Fiado (crédito)</option>
+            </select>
+          </div>
+          <div class="f-field">
+            <span class="f-label">Estado</span>
+            <select class="select-brand" id="fEstado" aria-label="Filtrar por estado">
+              <option value="">Todos</option>
+              <option>Pagada</option>
+              <option>Crédito</option>
+            </select>
+          </div>
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" class="input-brand" id="fCliente" placeholder="Buscar por cliente…" aria-label="Buscar por cliente" style="padding-right:12px;" />
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="btn-ghost-brand" id="btnLimpiar" style="padding:8px 12px; font-size:13px;">Limpiar</button>
+            <span class="filter-count" id="contador">10 ventas</span>
+          </div>
+        </div>
+
+        <div class="table-panel" data-od-id="tabla">
+          <div class="table-responsive">
+            <table class="vent">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Nº comanda</th>
+                  <th>Cliente</th>
+                  <th>Productos</th>
+                  <th>Método de pago</th>
+                  <th class="col-num">Total USD</th>
+                  <th class="col-num">Total Bs</th>
+                  <th>Estado</th>
+                  <th style="text-align:right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr data-busq="lisbeth montilla #014" data-metodo="efectivo" data-estado="pagada">
+                  <td><span class="fecha">02/09/2026<span class="hora">12:40</span></span></td>
+                  <td><span class="ncom">#014</span></td>
+                  <td><span class="cli">Lisbeth Montilla</span></td>
+                  <td><span class="prod">3 productos</span></td>
+                  <td><span class="metodo efectivo"><i class="bi bi-cash"></i> Efectivo</span></td>
+                  <td class="col-num"><span class="usd">$ 12,50</span></td>
+                  <td class="col-num"><span class="bs">Bs 531,25</span></td>
+                  <td><span class="estado pagada">Pagada</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="mariana rios #014" data-metodo="punto" data-estado="pagada">
+                  <td><span class="fecha">02/09/2026<span class="hora">11:55</span></span></td>
+                  <td><span class="ncom">#015</span></td>
+                  <td><span class="cli">Mariana Ríos</span></td>
+                  <td><span class="prod">2 productos</span></td>
+                  <td><span class="metodo punto"><i class="bi bi-credit-card"></i> Punto</span></td>
+                  <td class="col-num"><span class="usd">$ 9,75</span></td>
+                  <td class="col-num"><span class="bs">Bs 414,38</span></td>
+                  <td><span class="estado pagada">Pagada</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="carlos paez #016" data-metodo="fiado" data-estado="credito">
+                  <td><span class="fecha">02/09/2026<span class="hora">11:20</span></span></td>
+                  <td><span class="ncom">#016</span></td>
+                  <td><span class="cli">Carlos Páez</span></td>
+                  <td><span class="prod">4 productos</span></td>
+                  <td><span class="metodo fiado"><i class="bi bi-hourglass"></i> Fiado</span></td>
+                  <td class="col-num"><span class="usd">$ 45,00</span></td>
+                  <td class="col-num"><span class="bs">Bs 1.912,50</span></td>
+                  <td><span class="estado credito">Crédito</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="ana garcia #017" data-metodo="transferencia" data-estado="pagada">
+                  <td><span class="fecha">02/09/2026<span class="hora">10:45</span></span></td>
+                  <td><span class="ncom">#017</span></td>
+                  <td><span class="cli">Ana García</span></td>
+                  <td><span class="prod">3 productos</span></td>
+                  <td><span class="metodo transferencia"><i class="bi bi-bank"></i> Transferencia</span></td>
+                  <td class="col-num"><span class="usd">$ 18,00</span></td>
+                  <td class="col-num"><span class="bs">Bs 765,00</span></td>
+                  <td><span class="estado pagada">Pagada</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="jose lopez #018" data-metodo="efectivo" data-estado="pagada">
+                  <td><span class="fecha">02/09/2026<span class="hora">10:10</span></span></td>
+                  <td><span class="ncom">#018</span></td>
+                  <td><span class="cli">José López</span></td>
+                  <td><span class="prod">1 producto</span></td>
+                  <td><span class="metodo efectivo"><i class="bi bi-cash"></i> Efectivo</span></td>
+                  <td class="col-num"><span class="usd">$ 6,50</span></td>
+                  <td class="col-num"><span class="bs">Bs 276,25</span></td>
+                  <td><span class="estado pagada">Pagada</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="luis fernandez #019" data-metodo="punto" data-estado="pagada">
+                  <td><span class="fecha">02/09/2026<span class="hora">09:30</span></span></td>
+                  <td><span class="ncom">#019</span></td>
+                  <td><span class="cli">Luis Fernández</span></td>
+                  <td><span class="prod">2 productos</span></td>
+                  <td><span class="metodo punto"><i class="bi bi-credit-card"></i> Punto</span></td>
+                  <td class="col-num"><span class="usd">$ 11,25</span></td>
+                  <td class="col-num"><span class="bs">Bs 478,13</span></td>
+                  <td><span class="estado pagada">Pagada</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="rosa perez #020" data-metodo="fiado" data-estado="credito">
+                  <td><span class="fecha">01/09/2026<span class="hora">19:20</span></span></td>
+                  <td><span class="ncom">#020</span></td>
+                  <td><span class="cli">Rosa Pérez</span></td>
+                  <td><span class="prod">4 productos</span></td>
+                  <td><span class="metodo fiado"><i class="bi bi-hourglass"></i> Fiado</span></td>
+                  <td class="col-num"><span class="usd">$ 28,50</span></td>
+                  <td class="col-num"><span class="bs">Bs 1.211,25</span></td>
+                  <td><span class="estado credito">Crédito</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="cliente anonimo #021" data-metodo="efectivo" data-estado="pagada">
+                  <td><span class="fecha">01/09/2026<span class="hora">18:05</span></span></td>
+                  <td><span class="ncom">#021</span></td>
+                  <td><span class="cli anoni">Cliente anónimo</span></td>
+                  <td><span class="prod">2 productos</span></td>
+                  <td><span class="metodo efectivo"><i class="bi bi-cash"></i> Efectivo</span></td>
+                  <td class="col-num"><span class="usd">$ 8,90</span></td>
+                  <td class="col-num"><span class="bs">Bs 378,25</span></td>
+                  <td><span class="estado pagada">Pagada</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="ana garcia #022" data-metodo="transferencia" data-estado="pagada">
+                  <td><span class="fecha">01/09/2026<span class="hora">17:15</span></span></td>
+                  <td><span class="ncom">#022</span></td>
+                  <td><span class="cli">Ana García</span></td>
+                  <td><span class="prod">3 productos</span></td>
+                  <td><span class="metodo transferencia"><i class="bi bi-bank"></i> Transferencia</span></td>
+                  <td class="col-num"><span class="usd">$ 21,30</span></td>
+                  <td class="col-num"><span class="bs">Bs 905,25</span></td>
+                  <td><span class="estado pagada">Pagada</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-busq="luis fernandez #023" data-metodo="efectivo" data-estado="pagada">
+                  <td><span class="fecha">01/09/2026<span class="hora">16:40</span></span></td>
+                  <td><span class="ncom">#023</span></td>
+                  <td><span class="cli">Luis Fernández</span></td>
+                  <td><span class="prod">1 producto</span></td>
+                  <td><span class="metodo efectivo"><i class="bi bi-cash"></i> Efectivo</span></td>
+                  <td class="col-num"><span class="usd">$ 7,00</span></td>
+                  <td class="col-num"><span class="bs">Bs 297,50</span></td>
+                  <td><span class="estado pagada">Pagada</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="imprimir" title="Reimprimir ticket"><i class="bi bi-printer"></i></button>
+                      <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vacio" id="vacio" style="display:none;">No hay ventas que coincidan con los filtros.</div>
+          <div class="pager" data-od-id="pager">
+            <span class="pager-info">Mostrando <strong id="pagInfo">10</strong> · Página <strong>1</strong> de <strong>2</strong></span>
+            <div class="pager-controls">
+              <button type="button" class="page-btn" id="prevPg" disabled aria-label="Página anterior"><i class="bi bi-chevron-left"></i></button>
+              <button type="button" class="page-btn current" data-pg="1">1</button>
+              <button type="button" class="page-btn" data-pg="2">2</button>
+              <button type="button" class="page-btn" id="nextPg" aria-label="Página siguiente"><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item active" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var today = new Date();
+      var elDate = document.getElementById('todayDate');
+      if (elDate) elDate.textContent = today.getDate() + ' de ' + meses[today.getMonth()] + ' de ' + today.getFullYear();
+
+      var hoy = new Date();
+      function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+      var anter = new Date(); anter.setDate(anter.getDate() - 7);
+      document.getElementById('fDesde').value = iso(anter);
+      document.getElementById('fHasta').value = iso(hoy);
+
+      var fDesde = document.getElementById('fDesde');
+      var fHasta = document.getElementById('fHasta');
+      var fMetodo = document.getElementById('fMetodo');
+      var fEstado = document.getElementById('fEstado');
+      var fCliente = document.getElementById('fCliente');
+      var tbody = document.getElementById('tbody');
+      var vacio = document.getElementById('vacio');
+      var contador = document.getElementById('contador');
+      var pagInfo = document.getElementById('pagInfo');
+
+      function aplicar() {
+        var q = fCliente.value.toLowerCase().trim();
+        var m = fMetodo.value.toLowerCase();
+        var e = fEstado.value.toLowerCase();
+        var d0 = fDesde.value;
+        var d1 = fHasta.value;
+        var visibles = 0;
+        Array.prototype.forEach.call(tbody.querySelectorAll('tr'), function (tr) {
+          var fecha = tr.querySelector('.fecha').textContent.trim().split(' ')[0];
+          var fine = fecha.replace(/\//g, '-').split('-');
+          var isoFecha = fine[2] + '-' + fine[1] + '-' + fine[0];
+          var okD = true;
+          if (d0 && isoFecha < d0) okD = false;
+          if (d1 && isoFecha > d1) okD = false;
+          var ok = okD &&
+            (m === '' || (tr.getAttribute('data-metodo') || '') === m) &&
+            (e === '' || (tr.getAttribute('data-estado') || '') === e) &&
+            (!q || (tr.getAttribute('data-busq') || '').indexOf(q) !== -1);
+          tr.style.display = ok ? '' : 'none';
+          if (ok) visibles++;
+        });
+        vacio.style.display = visibles === 0 ? 'block' : 'none';
+        contador.textContent = visibles + ' venta' + (visibles === 1 ? '' : 's');
+        pagInfo.textContent = visibles;
+      }
+      [fDesde, fHasta, fMetodo, fEstado, fCliente].forEach(function (el) {
+        el.addEventListener('input', aplicar);
+        el.addEventListener('change', aplicar);
+      });
+      document.getElementById('btnLimpiar').addEventListener('click', function () {
+        fDesde.value = iso(anter); fHasta.value = iso(hoy); fMetodo.value = ''; fEstado.value = ''; fCliente.value = '';
+        aplicar();
+        toast('Filtros restablecidos.');
+      });
+
+      var pagina = 1;
+      function setPagina(p) {
+        pagina = p;
+        document.querySelectorAll('.page-btn[data-pg]').forEach(function (b) {
+          b.classList.toggle('current', parseInt(b.getAttribute('data-pg'), 10) === p);
+        });
+        document.getElementById('prevPg').disabled = p === 1;
+        document.getElementById('nextPg').disabled = p === 2;
+      }
+      document.getElementById('prevPg').addEventListener('click', function () { if (pagina > 1) setPagina(pagina - 1); });
+      document.getElementById('nextPg').addEventListener('click', function () { if (pagina < 2) setPagina(pagina + 1); });
+      document.querySelectorAll('.page-btn[data-pg]').forEach(function (b) {
+        b.addEventListener('click', function () { setPagina(parseInt(b.getAttribute('data-pg'), 10)); });
+      });
+
+      document.getElementById('btnExportar').addEventListener('click', function () { toast('Exportando listado (demo).'); });
+
+      tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest('.icon-btn');
+        if (!btn) return;
+        var act = btn.getAttribute('data-act');
+        if (act === 'detalle') window.location.href = 'venta.html';
+        else if (act === 'imprimir') window.location.href = 'ticket.html';
+      });
+
+      function toast(msg) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--footer-bg);color:var(--surface);padding:11px 18px;border-radius:12px;font-weight:600;font-size:13.5px;z-index:1080;box-shadow:var(--elev-2);';
+        document.body.appendChild(t);
+        setTimeout(function () { t.remove(); }, 1800);
+      }
+
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-module');
+          if (key === 'ventas') window.location.href = 'ventas.html';
+          else if (key === 'creditos') window.location.href = 'creditos.html';
+          else if (key === 'clientes') window.location.href = 'clientes.html';
+          else if (key === 'inventario') window.location.href = 'inventario.html';
+          else if (key === 'recetas') window.location.href = 'recetas.html';
+          else if (key === 'catalogo') window.location.href = 'catalogo.html';
+          else if (key === 'comandas') window.location.href = 'comandas.html';
+          else if (key === 'cocina') window.location.href = 'cocina.html';
+          else if (key === 'dashboard') window.location.href = 'dashboard.html';
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      aplicar();
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

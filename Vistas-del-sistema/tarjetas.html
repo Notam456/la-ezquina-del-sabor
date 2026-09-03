@@ -1,0 +1,427 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 7.3 — Tarjetas de Regalo
+  Emisión y canje de tarjetas de regalo por puntos: conversión y lista de emitidas.
+  Vista Registro/Lista (DESIGN.md §7): formulario + resumen y lista. Shell común.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tarjetas de regalo · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 40px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .breadcrumb-nav { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .breadcrumb-nav a { color: var(--accent-ghost); font-weight: 500; }
+  .breadcrumb-nav a:hover { text-decoration: underline; }
+  .breadcrumb-nav .sep { color: var(--meta); }
+
+  .conversion-banner { display: flex; align-items: center; gap: 10px; background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 20px; font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); flex-wrap: wrap; }
+  .conversion-banner i { font-size: 18px; }
+  .conversion-banner .val { font-family: var(--font-mono); font-weight: 700; }
+
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 22px; align-items: start; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); }
+  .panel-head { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .panel-title { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  .panel-desc { font-size: 13px; color: var(--muted); margin: 3px 0 0; }
+  .panel-body { padding: 20px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  .label { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+  .label .req { color: var(--danger); }
+  .hint { font-size: 12px; color: var(--muted); }
+  .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 10px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); width: 100%; transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+
+  .puntos-avail { background: var(--surface-sunken); border-radius: var(--radius-md); padding: 9px 13px; font-size: 13px; color: var(--fg-2); margin-bottom: 16px; }
+  .puntos-avail strong { font-family: var(--font-display); color: var(--accent-ghost); }
+
+  .conv-output { background: var(--accent-soft); border: 1px dashed color-mix(in oklab, var(--accent) 50%, transparent); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .conv-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .conv-row .k { color: var(--fg-2); }
+  .conv-row .v { font-family: var(--font-display); font-weight: 700; color: var(--accent-ghost); font-variant-numeric: tabular-nums; }
+  .conv-row.total { border-top: 1px solid color-mix(in oklab, var(--accent) 40%, transparent); padding-top: 10px; margin-top: 2px; }
+  .conv-row.total .v { font-size: 19px; }
+  .conv-row .v .bs { display: block; font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-weight: 500; text-align: right; }
+
+  .confirm-box { background: var(--success-soft); border: 1px solid color-mix(in oklab, var(--success) 30%, transparent); border-radius: var(--radius-md); padding: 13px 15px; display: none; gap: 10px; margin-top: 16px; }
+  .confirm-box.show { display: flex; }
+  .confirm-box i { color: var(--success); font-size: 18px; }
+  .confirm-box .t { font-weight: 600; color: var(--success); font-size: 13.5px; }
+  .confirm-box .s { color: var(--fg-2); font-size: 12.5px; margin-top: 2px; }
+  .confirm-box .mono { font-family: var(--font-mono); }
+
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 15px; border-radius: var(--radius-md); padding: 12px 16px; border: 0; cursor: pointer; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+  .form-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .form-actions .btn-ghost-brand { flex: 2; }
+  .form-actions .btn-primary-brand { flex: 3; width: auto; }
+
+  .side-sticky { position: sticky; top: calc(var(--topbar-h) + 20px); display: flex; flex-direction: column; gap: 14px; }
+  .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--elev-1); }
+  .sum-card .t { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); margin-bottom: 12px; }
+  .sum-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; font-size: 14px; }
+  .sum-row .lab { color: var(--fg-2); }
+  .sum-row .val { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sum-row.total { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; }
+  .sum-row.total .val { font-size: 19px; color: var(--accent-ghost); }
+  .sum-hint { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; }
+
+  .tarjetas-list .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .tarjeta { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 12px; background: var(--surface); transition: border-color var(--motion-fast) var(--ease-out); }
+  .tarjeta:last-child { margin-bottom: 0; }
+  .tarjeta:hover { border-color: var(--border-strong); }
+  .gift-ico { width: 42px; height: 42px; flex: 0 0 auto; border-radius: 11px; background: var(--accent-soft); color: var(--accent-ghost); display: grid; place-items: center; font-size: 20px; }
+  .gift-ico.redeemed { background: var(--surface-sunken); color: var(--muted); }
+  .gift-main { flex: 1; min-width: 0; }
+  .gift-code { font-family: var(--font-mono); font-weight: 700; font-size: 14px; color: var(--fg); }
+  .gift-sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .gift-side { text-align: right; }
+  .gift-value { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--accent-ghost); font-variant-numeric: tabular-nums; }
+  .gift-value .bs { display: block; font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); font-weight: 500; }
+  .st-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 999px; padding: 3px 10px; margin-top: 6px; display: inline-block; }
+  .st-badge.activa { background: var(--success-soft); color: var(--success); }
+  .st-badge.canjeada { background: var(--surface-sunken); color: var(--muted); }
+  .st-badge.parcial { background: var(--warn-soft); color: var(--warn); }
+
+  @media (max-width: 1199.98px) { .layout { grid-template-columns: 1fr; } .side-sticky { position: static; } }
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (max-width: 767.98px) { .form-grid { grid-template-columns: 1fr; } .content { padding: 16px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item active" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip"><span class="tasa-label">Tasa BCV</span><span>Bs 42,50 / USD</span></span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <nav class="breadcrumb-nav">
+          <a href="clientes.html">Clientes</a>
+          <span class="sep">/</span>
+          <span>Tarjetas de regalo</span>
+        </nav>
+
+        <div class="page-head">
+          <div>
+            <p class="page-eyebrow">Fidelización · Puntos</p>
+            <h1 class="page-title">Tarjetas de regalo</h1>
+            <p class="page-sub">Convierte puntos acumulados en tarjetas de regalo.</p>
+          </div>
+        </div>
+
+        <div class="conversion-banner">
+          <i class="bi bi-arrow-repeat"></i>
+          <span>Conversión: <span class="val">10 puntos = $ 1,00</span> de tarjeta de regalo.</span>
+        </div>
+
+        <div class="layout">
+          <div>
+            <div class="panel" data-od-id="formulario" style="margin-bottom:22px;">
+              <div class="panel-head">
+                <h2 class="panel-title">Emitir tarjeta de regalo</h2>
+                <p class="panel-desc">Selecciona el cliente y los puntos a canjear.</p>
+              </div>
+              <div class="panel-body">
+                <div class="puntos-avail">Cliente: <strong id="puntosDisponibles">1.250 puntos</strong> disponibles para canje.</div>
+                <div class="form-grid">
+                  <div class="field full">
+                    <label class="label" for="cli">Cliente <span class="req">*</span></label>
+                    <select class="select-brand" id="cli">
+                      <option value="1250" selected>Lisbeth Montilla (1.250 pts)</option>
+                      <option value="980">Mariana Ríos (980 pts)</option>
+                      <option value="310">Carlos Páez (310 pts)</option>
+                      <option value="2040">Ana García (2.040 pts)</option>
+                      <option value="540">José López (540 pts)</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="label" for="puntosCanje">Puntos a canjear <span class="req">*</span></label>
+                    <input type="number" class="input-brand" id="puntosCanje" value="500" min="10" step="10" placeholder="0" />
+                    <span class="hint">Mínimo 10 puntos para canjear.</span>
+                  </div>
+                  <div class="field">
+                    <label class="label">Valor de la tarjeta</label>
+                    <input type="text" class="input-brand" id="valorTarjeta" readonly value="$ 50,00" />
+                    <span class="hint">Calculado automáticamente (10 pts = $1).</span>
+                  </div>
+                </div>
+
+                <div class="conv-output" data-od-id="conversion">
+                  <div class="conv-row"><span class="k">Puntos a canjear</span><span class="v tabular" id="cPuntos">500</span></div>
+                  <div class="conv-row"><span class="k">Puntos restantes del cliente</span><span class="v tabular" id="cResto">750</span></div>
+                  <div class="conv-row total"><span class="k">Valor de la tarjeta</span><span class="v tabular" id="cValor">$ 50,00</span></div>
+                </div>
+
+                <div class="confirm-box" id="confirmBox">
+                  <i class="bi bi-check-circle-fill"></i>
+                  <div>
+                    <div class="t">Tarjeta emitida</div>
+                    <div class="s">Tarjeta <span class="mono">LES-4821-9250</span> por <span class="mono">$ 50,00</span> para <span class="mono">Lisbeth Montilla</span>.</div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn-ghost-brand" id="btnVolver"><i class="bi bi-arrow-left"></i> Volver a clientes</button>
+                  <button type="button" class="btn-primary-brand" id="btnEmitir"><i class="bi bi-gift"></i> Emitir tarjeta</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel tarjetas-list" data-od-id="lista">
+              <div class="panel-head">
+                <h2 class="panel-title">Tarjetas emitidas</h2>
+                <span style="font-size:12.5px; color:var(--muted);">3 tarjetas</span>
+              </div>
+              <div class="panel-body">
+                <div class="tarjeta">
+                  <span class="gift-ico"><i class="bi bi-gift"></i></span>
+                  <div class="gift-main">
+                    <div class="gift-code">LES-9103-2244</div>
+                    <div class="gift-sub">Ana García · Emitida el 18 ago 2026</div>
+                  </div>
+                  <div class="gift-side">
+                    <div class="gift-value">$ 30,00</div>
+                    <span class="st-badge activa">Activa</span>
+                  </div>
+                </div>
+                <div class="tarjeta">
+                  <span class="gift-ico"><i class="bi bi-gift"></i></span>
+                  <div class="gift-main">
+                    <div class="gift-code">LES-7201-8830</div>
+                    <div class="gift-sub">Mariana Ríos · Emitida el 2 ago 2026</div>
+                  </div>
+                  <div class="gift-side">
+                    <div class="gift-value">$ 25,00</div>
+                    <span class="st-badge parcial">Parcial — $ 10,00 usado</span>
+                  </div>
+                </div>
+                <div class="tarjeta">
+                  <span class="gift-ico redeemed"><i class="bi bi-gift"></i></span>
+                  <div class="gift-main">
+                    <div class="gift-code">LES-6011-5502</div>
+                    <div class="gift-sub">Lisbeth Montilla · Emitida el 20 jul 2026</div>
+                  </div>
+                  <div class="gift-side">
+                    <div class="gift-value" style="color:var(--muted);">$ 15,00</div>
+                    <span class="st-badge canjeada">Canjeada</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="side-sticky" data-od-id="resumen">
+            <div class="sum-card">
+              <div class="t">Resumen de puntos</div>
+              <div class="sum-row"><span class="lab">Tarjetas emitidas</span><span class="val tabular">3</span></div>
+              <div class="sum-row"><span class="lab">Puntos canjeados</span><span class="val tabular" style="color:var(--accent-ghost);">4.750</span></div>
+              <div class="sum-row"><span class="lab">Valor entregado</span><span class="val tabular">$ 70,00</span></div>
+              <div class="sum-row total"><span class="lab">Puntos pendientes</span><span class="val tabular">9.210</span></div>
+              <p class="sum-hint">Actualizado automáticamente al emitir.</p>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item active" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var today = new Date();
+      var elDate = document.getElementById('todayDate');
+      if (elDate) elDate.textContent = today.getDate() + ' de ' + meses[today.getMonth()] + ' de ' + today.getFullYear();
+
+      var TASA = 42.50;
+      function fmt(n) { return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+      function fmtN(n) { return n.toLocaleString('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+
+      var cli = document.getElementById('cli');
+      var puntosCanje = document.getElementById('puntosCanje');
+      var valorTarjeta = document.getElementById('valorTarjeta');
+      var puntosDisponibles = document.getElementById('puntosDisponibles');
+
+      function actualizar() {
+        var disp = parseInt(cli.value, 10) || 0;
+        var canje = parseInt(puntosCanje.value, 10) || 0;
+        if (canje > disp) canje = disp;
+        var valor = canje / 10;
+        valorTarjeta.value = '$ ' + fmt(valor) + '  /  Bs ' + fmt(valor * TASA);
+        document.getElementById('cPuntos').textContent = fmtN(canje);
+        document.getElementById('cResto').textContent = fmtN(disp - canje);
+        document.getElementById('cValor').innerHTML = '$ ' + fmt(valor) + '<span class="bs" style="display:block;font-family:var(--font-mono);font-size:12px;color:var(--muted);font-weight:500;text-align:right;">Bs ' + fmt(valor * TASA) + '</span>';
+        puntosDisponibles.textContent = fmtN(disp) + ' puntos';
+      }
+      cli.addEventListener('change', actualizar);
+      puntosCanje.addEventListener('input', actualizar);
+
+      document.getElementById('btnEmitir').addEventListener('click', function () {
+        var disp = parseInt(cli.value, 10) || 0;
+        var canje = parseInt(puntosCanje.value, 10) || 0;
+        if (canje < 10) { toast('El mínimo de canje es 10 puntos.'); return; }
+        if (canje > disp) { toast('No hay suficientes puntos disponibles.'); return; }
+        document.getElementById('confirmBox').classList.add('show');
+        toast('Tarjeta de regalo emitida.');
+      });
+
+      document.getElementById('btnVolver').addEventListener('click', function () { window.location.href = 'clientes.html'; });
+
+      function toast(msg) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--footer-bg);color:var(--surface);padding:11px 18px;border-radius:12px;font-weight:600;font-size:13.5px;z-index:1080;box-shadow:var(--elev-2);';
+        document.body.appendChild(t);
+        setTimeout(function () { t.remove(); }, 1800);
+      }
+
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-module');
+          if (key === 'clientes') window.location.href = 'clientes.html';
+          else if (key === 'inventario') window.location.href = 'inventario.html';
+          else if (key === 'recetas') window.location.href = 'recetas.html';
+          else if (key === 'catalogo') window.location.href = 'catalogo.html';
+          else if (key === 'comandas') window.location.href = 'comandas.html';
+          else if (key === 'cocina') window.location.href = 'cocina.html';
+          else if (key === 'dashboard') window.location.href = 'dashboard.html';
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      actualizar();
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

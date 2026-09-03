@@ -1,0 +1,234 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 3.5 — Comanda Impresa (Layout Térmico 80mm)
+  Preview en pantalla de la comanda tal como sale en la impresora térmica de cocina.
+  Solo se imprime el ticket (80mm, mono, sin fondo). El resto de la página es entorno de preview.
+  Basado en los tokens de brand de DESIGN.md.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ticket · Comanda 014 · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+
+  .shell { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 48px; }
+
+  .toolbar {
+    width: 100%; max-width: 560px; display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .toolbar .t-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .toolbar .t-sub { font-size: 12.5px; color: var(--muted); }
+  .toolbar-actions { display: flex; gap: 10px; }
+  .btn-ghost-brand {
+    background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2);
+    font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 9px 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out);
+  }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+  .btn-primary-brand {
+    background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px;
+    border-radius: var(--radius-md); padding: 9px 16px; border: 0; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+  }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
+  .preview-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .measure-tag { font-family: var(--font-mono); font-size: 12px; color: var(--meta); display: flex; align-items: center; gap: 6px; }
+  .measure-tag i { font-size: 13px; }
+
+  /* ── El ticket térmico ─────────────────────────────────────── */
+  .ticket {
+    width: 80mm; min-height: 240mm;
+    background: var(--surface); color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 11.5px; line-height: 1.32;
+    box-shadow: var(--elev-2);
+    padding: 6mm 5mm;
+    font-variant-numeric: tabular-nums;
+  }
+  .tk-center { text-align: center; }
+  .tk-brand { font-family: var(--font-mono); font-weight: 700; font-size: 15px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .tk-tagline { font-size: 8.5px; color: var(--meta); letter-spacing: 0.02em; }
+  .tk-sep { width: 100%; border: 0; border-top: 1.5px dashed var(--border-strong); margin: 4px 0; }
+  .tk-sep-solid { width: 100%; border: 0; border-top: 1.5px solid var(--fg); margin: 4px 0; }
+  .tk-strong { font-weight: 700; }
+  .tk-num { font-size: 22px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.1; }
+  .tk-block { margin: 7px 0; }
+  .tk-row { display: flex; justify-content: space-between; gap: 8px; }
+  .tk-row .r { white-space: nowrap; }
+  .tk-meta { color: var(--fg-2); }
+  .tk-phone { color: var(--info); }
+
+  .tk-cols { display: flex; gap: 8px; margin-top: 8px; }
+  .c-cant { width: 22px; flex: 0 0 22px; }
+  .c-nombre { flex: 1; min-width: 0; }
+  .c-pv { width: 44px; flex: 0 0 44px; text-align: right; }
+  .tk-linea { margin: 3px 0; }
+  .tk-linea .c-nombre { word-break: break-word; }
+  .tk-nota { color: var(--warn); padding-left: 30px; }
+  .tk-nota::before { content: "· "; }
+  .tk-tipo { font-size: 9px; letter-spacing: 0.02em; color: var(--muted); }
+  .tk-tipo.casa { color: var(--accent-ghost); }
+  .tk-tipo.llevar { color: var(--warn); }
+  .tk-tipo.delivery { color: var(--info); }
+  .tk-nota-gral {
+    margin-top: 6px; border: 1px dashed var(--warn); padding: 4px 6px;
+    color: var(--warn);
+  }
+  .tk-total { border-top: 1.5px solid var(--fg); margin-top: 6px; padding-top: 5px; }
+  .tk-foot { margin-top: 8px; color: var(--muted); font-size: 10.5px; text-align: center; }
+  .tk-qr { color: var(--meta); letter-spacing: 0.1em; }
+
+  .only-print { display: none; }
+
+  /* ── Solo se imprime el ticket ─────────────────────────────── */
+  @media print {
+    body { background: var(--surface); }
+    .shell, .toolbar, .measure-tag, .no-print { display: none; }
+    .ticket, .ticket * { box-shadow: none !important; }
+    .ticket {
+      width: 80mm; min-height: 0;
+      padding: 0; margin: 0;
+    }
+    @page { size: 80mm auto; margin: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+
+    <div class="toolbar no-print">
+      <div>
+        <button type="button" class="btn btn-link p-0 mb-1" id="btnVolver" style="color:var(--accent-ghost); font-weight:600; font-size:13px; text-decoration:none;"><i class="bi bi-arrow-left"></i> Volver a la comanda</button>
+        <div class="t-title">Preview · Comanda impresa</div>
+        <div class="t-sub">Layout térmico 80&nbsp;mm · recibo de cocina</div>
+      </div>
+      <div class="toolbar-actions">
+        <button type="button" class="btn-ghost-brand" id="btnReimprimir"><i class="bi bi-arrow-counterclockwise"></i> Reimprimir</button>
+        <button type="button" class="btn-primary-brand" id="btnImprimir"><i class="bi bi-printer"></i> Imprimir comanda</button>
+      </div>
+    </div>
+
+    <div class="preview-wrap">
+      <span class="measure-tag no-print"><i class="bi bi-arrows-angle-expand"></i> El ticket mide 80&nbsp;mm de ancho real</span>
+
+      <!-- Ticket térmico 80mm -->
+      <div class="ticket" data-od-id="ticket" id="ticket">
+        <div class="tk-center tk-brand">La Esquina<br>del Sabor</div>
+        <div class="tk-center tk-tagline">calor, orden y sabor · Yaracuy</div>
+        <hr class="tk-sep" />
+
+        <div class="tk-center tk-block">
+          <div class="tk-meta">COMANDA</div>
+          <div class="tk-num">Nº 014</div>
+        </div>
+        <hr class="tk-sep" />
+
+        <div class="tk-block">
+          <div class="tk-row"><span>Cliente</span><span class="tk-strong">Mariana Ríos</span></div>
+          <div class="tk-row tk-meta"><span>Ubicación</span><span>Mesa 3</span></div>
+        </div>
+        <hr class="tk-sep" />
+
+        <div class="tk-block">
+          <div class="tk-cols tk-strong">
+            <span class="c-cant">Cant</span>
+            <span class="c-nombre">Producto</span>
+            <span class="c-pv">P.Unit</span>
+          </div>
+          <hr class="tk-sep" />
+
+          <div class="tk-linea">
+            <div class="tk-cols">
+              <span class="c-cant">2</span>
+              <span class="c-nombre">Hamburguesa Esquina</span>
+              <span class="c-pv">5,50</span>
+            </div>
+            <div class="tk-nota">Sin cebolla en las dos</div>
+            <div class="tk-tipo casa">[CASA]</div>
+          </div>
+
+          <div class="tk-linea">
+            <div class="tk-cols">
+              <span class="c-cant">1</span>
+              <span class="c-nombre">Jugo natural (naranja 500&nbsp;ml)</span>
+              <span class="c-pv">3,50</span>
+            </div>
+            <div class="tk-tipo casa">[CASA]</div>
+          </div>
+
+          <div class="tk-linea">
+            <div class="tk-cols">
+              <span class="c-cant">1</span>
+              <span class="c-nombre">Papas fritas extra</span>
+              <span class="c-pv">3,50</span>
+            </div>
+            <div class="tk-nota">Crujientes</div>
+            <div class="tk-tipo casa">[CASA]</div>
+          </div>
+        </div>
+
+        <div class="tk-block">
+          <div class="tk-strong" style="color:var(--warn);">Nota general</div>
+          <div class="tk-nota-gral">Surtir con salsa de la casa por separado</div>
+        </div>
+
+        <div class="tk-block tk-total">
+          <div class="tk-row"><span class="tk-strong">TOTAL</span><span class="tk-strong">$ 18,00</span></div>
+          <div class="tk-row tk-meta"><span>Bs</span><span class="tk-meta">765,00</span></div>
+        </div>
+
+        <hr class="tk-sep-solid" />
+        <div class="tk-foot">
+          <div>Impreso: <span id="tkFecha">02/09/2026</span> · <span id="tkHora">19:42</span></div>
+          <div>Operador: Gerente</div>
+          <div class="tk-qr">·····</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      function imprimir() { window.print(); }
+      document.getElementById('btnImprimir').addEventListener('click', imprimir);
+      document.getElementById('btnReimprimir').addEventListener('click', imprimir);
+      document.getElementById('btnVolver').addEventListener('click', function () { window.location.href = 'detalle-comanda.html'; });
+
+      var now = new Date();
+      var dd = String(now.getDate()).padStart(2, '0');
+      var mm = String(now.getMonth() + 1).padStart(2, '0');
+      var yyyy = now.getFullYear();
+      var hh = String(now.getHours()).padStart(2, '0');
+      var mi = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('tkFecha').textContent = dd + '/' + mm + '/' + yyyy;
+      document.getElementById('tkHora').textContent = hh + ':' + mi;
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

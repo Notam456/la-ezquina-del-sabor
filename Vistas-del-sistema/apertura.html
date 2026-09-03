@@ -1,0 +1,332 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 10.1 — Apertura de Jornada
+  Inicio del día: definir fecha, tasa BCV y caja inicial. Confirmación de reinicio de contador.
+  Vista tipo Registro central (DESIGN.md §7). Shell común (full mostrará apertura).
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Apertura de jornada · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 40px; max-width: 760px; margin: 0 auto; }
+  .breadcrumb-nav { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .breadcrumb-nav a { color: var(--accent-ghost); font-weight: 500; }
+  .breadcrumb-nav a:hover { text-decoration: underline; }
+  .breadcrumb-nav .sep { color: var(--meta); }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 6px 0 24px; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); }
+  .panel-head { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .panel-title { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  .panel-desc { font-size: 13px; color: var(--muted); margin: 3px 0 0; }
+  .panel-body { padding: 20px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  .label { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+  .label .req { color: var(--danger); }
+  .hint { font-size: 12px; color: var(--muted); }
+  .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 10px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); width: 100%; transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .input-group-x { position: relative; }
+  .input-group-x .pre { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-weight: 600; }
+  .input-brand.padx { padding-left: 34px; }
+
+  .prev-config { background: var(--surface-sunken); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 20px; font-size: 13px; }
+  .prev-config .t { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); margin-bottom: 8px; }
+  .prev-config .row { display: flex; justify-content: space-between; padding: 3px 0; color: var(--fg-2); }
+  .prev-config .row span:last-child { font-family: var(--font-mono); font-weight: 600; color: var(--fg); }
+
+  .warn-box { display: flex; gap: 10px; background: var(--warn-soft); border: 1px solid color-mix(in oklab, var(--warn) 40%, transparent); border-radius: var(--radius-md); padding: 12px 14px; font-size: 13px; color: var(--warn); margin-top: 16px; align-items: flex-start; }
+  .warn-box i { font-size: 16px; margin-top: 1px; }
+
+  .confirm-check { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; font-size: 13.5px; color: var(--fg-2); }
+  .confirm-check input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--accent); }
+  .confirm-check label { cursor: pointer; }
+
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 15px; border-radius: var(--radius-md); padding: 12px 18px; border: 0; cursor: pointer; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .btn-primary-brand:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 12px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+  .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .form-actions .btn-ghost-brand { flex: 2; }
+  .form-actions .btn-primary-brand { flex: 3; width: auto; }
+
+  .confirm-box { background: var(--success-soft); border: 1px solid color-mix(in oklab, var(--success) 30%, transparent); border-radius: var(--radius-md); padding: 14px 15px; display: none; gap: 10px; margin-top: 16px; }
+  .confirm-box.show { display: flex; }
+  .confirm-box i { color: var(--success); font-size: 20px; }
+  .confirm-box .t { font-weight: 600; color: var(--success); font-size: 14px; }
+  .confirm-box .s { color: var(--fg-2); font-size: 12.5px; margin-top: 2px; }
+
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (max-width: 767.98px) { .form-grid { grid-template-columns: 1fr; } .content { padding: 16px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip"><span class="tasa-label">Tasa BCV</span><span id="tasaChip">Bs 42,50 / USD</span></span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <nav class="breadcrumb-nav">
+          <a href="dashboard.html">Panel del día</a>
+          <span class="sep">/</span>
+          <span>Apertura de jornada</span>
+        </nav>
+
+        <p class="page-eyebrow">Inicio del día</p>
+        <h1 class="page-title">Abrir jornada</h1>
+        <p class="page-sub">Define la fecha, la tasa BCV del día y la caja inicial, y confirma el reinicio del contador de comandas.</p>
+
+        <div class="panel" data-od-id="formulario">
+          <div class="panel-head">
+            <h2 class="panel-title">Configuración de apertura</h2>
+            <p class="panel-desc">Estos valores regirán toda la jornada de hoy.</p>
+          </div>
+          <div class="panel-body">
+            <div class="prev-config" data-od-id="previa">
+              <div class="t">Configuración de la jornada anterior</div>
+              <div class="row"><span>Tasa BCV usada</span><span>Bs 42,50</span></div>
+              <div class="row"><span>Comandas generadas</span><span>23</span></div>
+              <div class="row"><span>Cierre</span><span>Confirmado</span></div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label class="label" for="fecha">Fecha de la jornada <span class="req">*</span></label>
+                <input type="date" class="input-brand" id="fecha" />
+              </div>
+              <div class="field">
+                <label class="label" for="tasa">Tasa BCV del día (Bs/USD) <span class="req">*</span></label>
+                <input type="number" class="input-brand" id="tasa" value="42.50" min="0" step="0.01" placeholder="0,00" />
+                <span class="hint">Se usa para todos los cálculos de montos del día.</span>
+              </div>
+              <div class="field full">
+                <label class="label" for="caja">Caja inicial (opcional)</label>
+                <div class="input-group-x">
+                  <span class="pre">$</span>
+                  <input type="number" class="input-brand padx" id="caja" value="50.00" min="0" step="0.01" placeholder="0,00" />
+                </div>
+                <span class="hint">Fondo que tendrá la caja al cuadrar al cierre del día.</span>
+              </div>
+            </div>
+
+            <div class="warn-box">
+              <i class="bi bi-arrow-repeat"></i>
+              <span>Al abrir la jornada se <strong>reiniciará el contador de comandas</strong>. La comanda nueva pasará a ser la #001.</span>
+            </div>
+
+            <div class="confirm-check">
+              <input type="checkbox" id="confReset" />
+              <label for="confReset">Confirmo que se reinicie el contador de comandas para la nueva jornada.</label>
+            </div>
+
+            <div class="confirm-box" id="confirmBox">
+              <i class="bi bi-check-circle-fill"></i>
+              <div>
+                <div class="t">Jornada abierta</div>
+                <div class="s">Tasa BCV <span id="confTasa" style="font-family:var(--font-mono); font-weight:600;">Bs 42,50</span> · Caja inicial <span id="confCaja" style="font-family:var(--font-mono); font-weight:600;">$ 50,00</span>. Contador reiniciado.</div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-ghost-brand" onclick="location.href='dashboard.html'"><i class="bi bi-x-lg"></i> Cancelar</button>
+              <button type="button" class="btn-primary-brand" id="btnAbrir" disabled><i class="bi bi-check-lg"></i> Abrir jornada</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var today = new Date();
+      var elDate = document.getElementById('todayDate');
+      if (elDate) elDate.textContent = today.getDate() + ' de ' + meses[today.getMonth()] + ' de ' + today.getFullYear();
+
+      var hoy = new Date();
+      var mm = String(hoy.getMonth() + 1).padStart(2, '0');
+      var dd = String(hoy.getDate()).padStart(2, '0');
+      document.getElementById('fecha').value = hoy.getFullYear() + '-' + mm + '-' + dd;
+
+      function fmt(n) { return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+      var confReset = document.getElementById('confReset');
+      var btnAbrir = document.getElementById('btnAbrir');
+      function sync() {
+        var ok = confReset.checked && (parseFloat(document.getElementById('tasa').value) || 0) > 0;
+        btnAbrir.disabled = !ok;
+      }
+      confReset.addEventListener('change', sync);
+      document.getElementById('tasa').addEventListener('input', sync);
+
+      btnAbrir.addEventListener('click', function () {
+        var tasa = parseFloat(document.getElementById('tasa').value) || 0;
+        var caja = parseFloat(document.getElementById('caja').value) || 0;
+        document.getElementById('tasaChip').textContent = 'Bs ' + fmt(tasa) + ' / USD';
+        document.getElementById('confTasa').textContent = 'Bs ' + fmt(tasa);
+        document.getElementById('confCaja').textContent = '$ ' + fmt(caja);
+        document.getElementById('confirmBox').classList.add('show');
+        toast('Jornada abierta correctamente.');
+      });
+
+      function toast(msg) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--footer-bg);color:var(--surface);padding:11px 18px;border-radius:12px;font-weight:600;font-size:13.5px;z-index:1080;box-shadow:var(--elev-2);';
+        document.body.appendChild(t);
+        setTimeout(function () { t.remove(); }, 1800);
+      }
+
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-module');
+          if (key === 'dashboard') window.location.href = 'dashboard.html';
+          else if (key === 'ventas') window.location.href = 'ventas.html';
+          else if (key === 'creditos') window.location.href = 'creditos.html';
+          else if (key === 'clientes') window.location.href = 'clientes.html';
+          else if (key === 'inventario') window.location.href = 'inventario.html';
+          else if (key === 'recetas') window.location.href = 'recetas.html';
+          else if (key === 'catalogo') window.location.href = 'catalogo.html';
+          else if (key === 'comandas') window.location.href = 'comandas.html';
+          else if (key === 'cocina') window.location.href = 'cocina.html';
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      sync();
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

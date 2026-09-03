@@ -1,0 +1,631 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 4.3 — Gestión de Combos
+  Crear combos con productos integrantes + cantidad y tipo de descuento, con precio calculado en vivo.
+  Lista de combos existentes con estado activo/inactivo. Basado en DESIGN.md tokens.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Combos · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 40px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
+  .form-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 20px; align-items: start; margin-bottom: 28px; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); }
+  .panel-pad { padding: 20px 22px; }
+  .sec-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .sec-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 16px; color: var(--fg); }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--fg-2); margin-bottom: 6px; }
+  .field label .req { color: var(--danger); }
+  .field .help { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+  .input-brand, .select-brand, .textarea-brand { width: 100%; background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 10px 14px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .textarea-brand { resize: vertical; min-height: 70px; }
+  .input-brand:focus, .select-brand:focus, .textarea-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+
+  /* Descuento segment */
+  .seg-desc { display: flex; gap: 10px; }
+  .seg-opt { flex: 1; }
+  .seg-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .seg-opt .box { display: flex; align-items: center; justify-content: center; gap: 8px; border: 1.5px solid var(--border-strong); background: var(--surface); border-radius: var(--radius-md); padding: 11px 10px; color: var(--fg-2); font-weight: 600; font-size: 13px; cursor: pointer; transition: border-color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .seg-opt .box i { font-size: 15px; }
+  .seg-opt .box:hover { border-color: var(--fg-2); color: var(--fg); }
+  .seg-opt input:checked + .box { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); }
+  .seg-opt input:focus-visible + .box { box-shadow: var(--focus-ring); }
+
+  /* Lista dinámica de productos del combo */
+  .combo-lineas { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .combo-linea {
+    display: grid; grid-template-columns: minmax(0,1fr) 84px 38px; gap: 10px; align-items: center;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px;
+    animation: rowIn var(--motion-fast) var(--ease-out);
+  }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .combo-linea .l-cant input { padding: 8px 10px; text-align: center; }
+  .kill-btn { width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid transparent; background: transparent; color: var(--danger); display: inline-grid; place-items: center; font-size: 15px; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .kill-btn:hover { background: var(--danger-soft); border-color: var(--danger); }
+  .kill-btn:focus-visible { box-shadow: 0 0 0 3px rgba(163,58,34,.3); outline: none; }
+
+  .add-btn { width: 100%; background: transparent; border: 1.5px dashed var(--border-strong); color: var(--accent-ghost); font-weight: 600; font-size: 13.5px; border-radius: var(--radius-md); padding: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+  .add-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
+  .calc-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+  .calc-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 5px 0; }
+  .calc-row .k { font-size: 13.5px; color: var(--fg-2); }
+  .v-usd { font-family: var(--font-display); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--fg); }
+  .calc-bs { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; }
+  .calc-row.ahorro .v-usd { color: var(--success); }
+  .calc-row.total { border-top: 1.5px solid var(--border-strong); margin-top: 6px; padding-top: 12px; }
+  .calc-row.total .k { font-weight: 700; color: var(--fg); }
+  .calc-row.total .v-usd { color: var(--accent-strong); font-size: 22px; }
+  .calc-bs.accent { color: var(--accent-ghost); font-size: 14px; font-weight: 600; }
+
+  /* Toggle estado */
+  .switch { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .switch .track { width: 46px; height: 26px; flex: 0 0 auto; border-radius: 999px; background: var(--surface-sunken); border: 1.5px solid var(--border-strong); position: relative; transition: background var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .switch .track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); box-shadow: var(--elev-1); transition: transform var(--motion-fast) var(--ease-out); }
+  .switch input:checked + .track { background: var(--success); border-color: var(--success); }
+  .switch input:checked + .track::after { transform: translateX(20px); }
+  .switch input:focus-visible + .track { box-shadow: var(--focus-ring); }
+  .switch .sw-label { font-size: 14px; font-weight: 600; color: var(--fg-2); }
+  .switch .sw-sub { font-size: 12px; color: var(--muted); }
+
+  /* Lista de combos existentes */
+  .sub-block { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 26px 0 14px; }
+  .sub-title { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .sub-count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+  .combo-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .combo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .cc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .cc-name { font-weight: 700; font-size: 15px; color: var(--fg); }
+  .cc-desc { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .cc-precio { text-align: right; }
+  .cc-usd { font-family: var(--font-display); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--accent-strong); }
+  .cc-bs { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .cc-pos { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cc-item { font-size: 12px; color: var(--fg-2); background: var(--surface-sunken); border-radius: 999px; padding: 3px 9px; }
+  .cc-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .cc-foot .row-actions { display: inline-flex; gap: 4px; }
+  .chk-estado { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+  .estado-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .chk-estado.activo { color: var(--success); }
+  .chk-estado.activo .estado-dot { background: var(--success); }
+  .chk-estado.inactivo { color: var(--meta); }
+  .chk-estado.inactivo .estado-dot { background: var(--meta); }
+  .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid transparent; background: transparent; color: var(--muted); display: inline-grid; place-items: center; font-size: 14px; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .icon-btn:hover { background: var(--surface-sunken); color: var(--fg); border-color: var(--border-strong); }
+  .icon-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
+  .side-panel { position: sticky; top: calc(var(--topbar-h) + 24px); }
+  .side-label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .side-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .btn-cancel { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 12px 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-cancel:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-cancel:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
+  .toast-slot { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1080; }
+  .mini-toast { background: var(--footer-bg); color: var(--surface); font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 12px; box-shadow: var(--elev-2); display: flex; align-items: center; gap: 9px; animation: toastIn var(--motion-fast) var(--ease-out); }
+  .mini-toast.ok { background: var(--success); }
+  .mini-toast i { font-size: 16px; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 1199.98px) { .form-grid { grid-template-columns: 1fr; } .side-panel { position: static; } }
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (max-width: 560px) { .seg-desc { flex-direction: column; } .combo-linea { grid-template-columns: 1fr 70px 36px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item active" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip" data-od-id="tasa-bcv">
+            <span class="tasa-label">Tasa BCV</span>
+            <span>Bs 42,50 / USD</span>
+          </span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <div class="page-head">
+          <div>
+            <button type="button" class="btn btn-link p-0 mb-1" id="btnVolver" style="color:var(--accent-ghost); font-weight:600; font-size:13px; text-decoration:none;"><i class="bi bi-arrow-left"></i> Volver al catálogo</button>
+            <p class="page-eyebrow" style="margin-bottom:2px;">Módulo catálogo · Combos</p>
+            <h1 class="page-title">Gestión de combos</h1>
+            <p class="page-sub">Agrupa productos con un descuento y calcula el precio automáticamente.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+
+          <!-- Formulario de combo -->
+          <section class="panel panel-pad" data-od-id="form" style="min-width:0;">
+            <p class="sec-eyebrow">Nuevo combo</p>
+            <h2 class="sec-title">Arma el combo</h2>
+
+            <div class="field">
+              <label for="cNombre">Nombre del combo <span class="req">*</span></label>
+              <input type="text" class="input-brand" id="cNombre" placeholder="Ej. Combo Esquina" />
+            </div>
+            <div class="field">
+              <label for="cDesc">Descripción</label>
+              <textarea class="textarea-brand" id="cDesc" placeholder="Qué incluye el combo…"></textarea>
+            </div>
+
+            <p class="sec-eyebrow">Productos integrantes</p>
+            <div class="combo-lineas" id="comboLineas">
+              <div class="combo-linea" data-precio="5.50">
+                <select class="select-brand producto-sel">
+                  <option value="5.50" selected>Hamburguesa Esquina — $ 5,50</option>
+                  <option value="3.00">Perro caliente — $ 3,00</option>
+                  <option value="2.50">Arepa dominó — $ 2,50</option>
+                  <option value="1.50">Jugo natural — $ 1,50</option>
+                  <option value="3.50">Papas fritas extra — $ 3,50</option>
+                  <option value="1.00">Refresco 500 ml — $ 1,00</option>
+                </select>
+                <div class="l-cant">
+                  <input type="number" class="input-brand cant-sel" value="1" min="1" max="20" aria-label="Cantidad" style="text-align:center;" />
+                </div>
+                <button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button>
+              </div>
+              <div class="combo-linea" data-precio="3.50">
+                <select class="select-brand producto-sel">
+                  <option value="5.50">Hamburguesa Esquina — $ 5,50</option>
+                  <option value="3.00">Perro caliente — $ 3,00</option>
+                  <option value="2.50">Arepa dominó — $ 2,50</option>
+                  <option value="1.50">Jugo natural — $ 1,50</option>
+                  <option value="3.50" selected>Papas fritas extra — $ 3,50</option>
+                  <option value="1.00">Refresco 500 ml — $ 1,00</option>
+                </select>
+                <div class="l-cant">
+                  <input type="number" class="input-brand cant-sel" value="1" min="1" max="20" aria-label="Cantidad" style="text-align:center;" />
+                </div>
+                <button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button>
+              </div>
+              <div class="combo-linea" data-precio="1.00">
+                <select class="select-brand producto-sel">
+                  <option value="5.50">Hamburguesa Esquina — $ 5,50</option>
+                  <option value="3.00">Perro caliente — $ 3,00</option>
+                  <option value="2.50">Arepa dominó — $ 2,50</option>
+                  <option value="1.50">Jugo natural — $ 1,50</option>
+                  <option value="3.50">Papas fritas extra — $ 3,50</option>
+                  <option value="1.00" selected>Refresco 500 ml — $ 1,00</option>
+                </select>
+                <div class="l-cant">
+                  <input type="number" class="input-brand cant-sel" value="1" min="1" max="20" aria-label="Cantidad" style="text-align:center;" />
+                </div>
+                <button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button>
+              </div>
+            </div>
+            <button type="button" class="add-btn" id="btnAgregarLinea"><i class="bi bi-plus-lg"></i> Agregar producto</button>
+
+          </section>
+
+          <!-- Panel lateral: descuento + resumen -->
+          <aside class="side-panel" data-od-id="resumen">
+            <div class="panel panel-pad">
+              <p class="side-label">Descuento y precio</p>
+
+              <div class="field">
+                <label>Tipo de descuento</label>
+                <div class="seg-desc">
+                  <label class="seg-opt">
+                    <input type="radio" name="tipoDesc" value="porcentaje" checked />
+                    <span class="box"><i class="bi bi-percent"></i> %</span>
+                  </label>
+                  <label class="seg-opt">
+                    <input type="radio" name="tipoDesc" value="monto" />
+                    <span class="box"><i class="bi bi-tag"></i> $ fijo</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="field" id="bloqueValor">
+                <label for="cValor" id="lblValor">Descuento %</label>
+                <div class="input-margin" style="position:relative;">
+                  <input type="number" class="input-brand" id="cValor" value="10" min="0" style="padding-right:36px;" />
+                  <span class="post" id="valorSuf" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-family:var(--font-mono); font-weight:600; color:var(--muted); font-size:14px;">%</span>
+                </div>
+              </div>
+
+              <div class="calc-box">
+                <div class="calc-row"><span class="k">Suma de productos</span><span><div class="v-usd" id="kSubtotal">$ 10,00</div><div class="calc-bs" id="kSubtotalBs">Bs 425,00</div></span></div>
+                <div class="calc-row ahorro"><span class="k">Descuento</span><span><div class="v-usd tabular" id="kDescuento">− $ 1,00</div></span></div>
+                <div class="calc-row total"><span class="k">Precio del combo</span><span><div class="v-usd" id="kTotal">$ 9,00</div><div class="calc-bs accent" id="kTotalBs">Bs 382,50</div></span></div>
+              </div>
+
+              <div class="field" style="margin-top:16px;">
+                <label class="switch">
+                  <input type="checkbox" id="cActivo" checked />
+                  <span class="track"></span>
+                  <span>
+                    <span class="sw-label" id="swLabel">Activo</span>
+                    <span class="sw-sub" id="swSub">Visible y vendible</span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="side-actions">
+                <button type="button" class="btn-primary-brand" id="btnGuardar"><i class="bi bi-check-lg"></i> Guardar combo</button>
+                <button type="button" class="btn-cancel" id="btnCancelar"><i class="bi bi-x-lg"></i> Cancelar</button>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+
+        <!-- Combos existentes -->
+        <div class="sub-block">
+          <h2 class="sub-title">Combos existentes</h2>
+          <span class="sub-count" id="comboCount">3 combos</span>
+        </div>
+        <div class="combo-cards" data-od-id="combos">
+          <div class="combo-card">
+            <div class="cc-top">
+              <div>
+                <div class="cc-name">Combo Esquina</div>
+                <div class="cc-desc">Hamburguesa · papas · refresco</div>
+              </div>
+              <div class="cc-precio">
+                <div class="cc-usd">$ 8,00</div>
+                <div class="cc-bs">Bs 340,00</div>
+              </div>
+            </div>
+            <div class="cc-pos">
+              <span class="cc-item">1× Hamburguesa</span>
+              <span class="cc-item">1× Papas</span>
+              <span class="cc-item">1× Refresco</span>
+              <span class="cc-item" style="background:var(--success-soft); color:var(--success);">−10%</span>
+            </div>
+            <div class="cc-foot">
+              <span class="chk-estado activo"><span class="estado-dot"></span>Activo</span>
+              <div class="row-actions">
+                <button type="button" class="icon-btn" data-acc="toggle" title="Activar/desactivar"><i class="bi bi-toggle-on"></i></button>
+                <button type="button" class="icon-btn" data-acc="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="combo-card">
+            <div class="cc-top">
+              <div>
+                <div class="cc-name">Combo Peregrino</div>
+                <div class="cc-desc">Doble proteína · ahorro familiar</div>
+              </div>
+              <div class="cc-precio">
+                <div class="cc-usd">$ 6,50</div>
+                <div class="cc-bs">Bs 276,25</div>
+              </div>
+            </div>
+            <div class="cc-pos">
+              <span class="cc-item">1× Perro</span>
+              <span class="cc-item">1× Arepa</span>
+              <span class="cc-item">1× Jugo</span>
+              <span class="cc-item" style="background:var(--success-soft); color:var(--success);">−$ 1,00</span>
+            </div>
+            <div class="cc-foot">
+              <span class="chk-estado activo"><span class="estado-dot"></span>Activo</span>
+              <div class="row-actions">
+                <button type="button" class="icon-btn" data-acc="toggle" title="Activar/desactivar"><i class="bi bi-toggle-on"></i></button>
+                <button type="button" class="icon-btn" data-acc="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="combo-card">
+            <div class="cc-top">
+              <div>
+                <div class="cc-name">Combo Fiesta</div>
+                <div class="cc-desc">Para compartir en grupo</div>
+              </div>
+              <div class="cc-precio">
+                <div class="cc-usd">$ 15,40</div>
+                <div class="cc-bs">Bs 654,50</div>
+              </div>
+            </div>
+            <div class="cc-pos">
+              <span class="cc-item">2× Hamburguesa</span>
+              <span class="cc-item">2× Papas</span>
+              <span class="cc-item">2× Refresco</span>
+              <span class="cc-item" style="background:var(--success-soft); color:var(--success);">−15%</span>
+            </div>
+            <div class="cc-foot">
+              <span class="chk-estado inactivo"><span class="estado-dot"></span>Inactivo</span>
+              <div class="row-actions">
+                <button type="button" class="icon-btn" data-acc="toggle" title="Activar/desactivar"><i class="bi bi-toggle-off"></i></button>
+                <button type="button" class="icon-btn" data-acc="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item active" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <div class="toast-slot" id="toastSlot"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var TASA = 42.50;
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var today = new Date();
+      var elDate = document.getElementById('todayDate');
+      if (elDate) elDate.textContent = today.getDate() + ' de ' + meses[today.getMonth()] + ' de ' + today.getFullYear();
+
+      function num(v) { var n = parseFloat(v); return isNaN(n) || n < 0 ? 0 : n; }
+      function fmt(n) { return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+      function usd(n) { return '$ ' + fmt(n); }
+      function bsf(n) { return 'Bs ' + fmt(n); }
+
+      var tipoDesc = 'porcentaje';
+      var selectOptsHTML = document.querySelector('.producto-sel').innerHTML;
+
+      function agregarLinea(precio, cant) {
+        var div = document.createElement('div');
+        div.className = 'combo-linea';
+        div.setAttribute('data-precio', precio || '0');
+        div.innerHTML =
+          '<select class="select-brand producto-sel">' + selectOptsHTML + '</select>' +
+          '<div class="l-cant"><input type="number" class="input-brand cant-sel" value="' + (cant || 1) + '" min="1" max="20" aria-label="Cantidad" style="text-align:center;" /></div>' +
+          '<button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button>';
+        document.getElementById('comboLineas').appendChild(div);
+        div.querySelector('.producto-sel').value = div.querySelector('.producto-sel').value;
+        return div;
+      }
+
+      document.getElementById('btnAgregarLinea').addEventListener('click', function () {
+        var d = agregarLinea(5.50, 1);
+        var prod = d.querySelector('.producto-sel');
+        prod.value = prod.options[prod.selectedIndex].value;
+        d.setAttribute('data-precio', prod.value);
+      });
+
+      function calc() {
+        var lineas = document.querySelectorAll('#comboLineas .combo-linea');
+        var subtotal = 0;
+        lineas.forEach(function (l) {
+          var precio = num(l.querySelector('.producto-sel').value);
+          var cant = num(l.querySelector('.cant-sel').value);
+          subtotal += precio * cant;
+        });
+
+        var valor = num(document.getElementById('cValor').value);
+        var desc = tipoDesc === 'porcentaje' ? (subtotal * valor / 100) : valor;
+        if (desc > subtotal) desc = subtotal;
+        var total = subtotal - desc;
+
+        document.getElementById('kSubtotal').textContent = usd(subtotal);
+        document.getElementById('kSubtotalBs').textContent = bsf(subtotal * TASA);
+        document.getElementById('kDescuento').textContent = '− ' + usd(desc);
+        document.getElementById('kTotal').textContent = usd(total);
+        document.getElementById('kTotalBs').textContent = bsf(total * TASA);
+      }
+
+      document.getElementById('btnAgregarLinea').addEventListener('click', function () { setTimeout(calc, 0); });
+
+      document.getElementById('comboLineas').addEventListener('click', function (e) {
+        var kill = e.target.closest('.kill-btn');
+        if (!kill) return;
+        var lineas = document.querySelectorAll('#comboLineas .combo-linea');
+        if (lineas.length === 1) {
+          kill.closest('.combo-linea').querySelector('.producto-sel').selectedIndex = 0;
+          kill.closest('.combo-linea').querySelector('.cant-sel').value = 1;
+        } else {
+          kill.closest('.combo-linea').remove();
+        }
+        calc();
+      });
+
+      document.getElementById('comboLineas').addEventListener('change', function (e) {
+        if (e.target.classList.contains('producto-sel')) {
+          e.target.closest('.combo-linea').setAttribute('data-precio', e.target.value);
+        }
+        calc();
+      });
+      document.getElementById('comboLineas').addEventListener('input', function (e) {
+        if (e.target.classList.contains('cant-sel')) calc();
+      });
+      document.getElementById('cValor').addEventListener('input', calc);
+
+      document.querySelectorAll('input[name="tipoDesc"]').forEach(function (r) {
+        r.addEventListener('change', function () {
+          if (!this.checked) return;
+          tipoDesc = this.value;
+          var pct = tipoDesc === 'porcentaje';
+          document.getElementById('lblValor').textContent = pct ? 'Descuento %' : 'Descuento fijo ($)';
+          document.getElementById('valorSuf').textContent = pct ? '%' : '$';
+          document.getElementById('cValor').value = pct ? '10' : '1.00';
+          calc();
+        });
+      });
+
+      var sw = document.getElementById('cActivo');
+      sw.addEventListener('change', function () {
+        document.getElementById('swLabel').textContent = this.checked ? 'Activo' : 'Inactivo';
+        document.getElementById('swSub').textContent = this.checked ? 'Visible y vendible' : 'Oculto del menú';
+      });
+
+      function toast(msg) {
+        var slot = document.getElementById('toastSlot');
+        slot.innerHTML = '<div class="mini-toast ok"><i class="bi bi-check-circle-fill"></i><span>' + msg + '</span></div>';
+        setTimeout(function () { slot.innerHTML = ''; }, 2000);
+      }
+
+      document.getElementById('btnGuardar').addEventListener('click', function () {
+        var nombre = document.getElementById('cNombre').value.trim();
+        if (!nombre) { toast('El nombre del combo es obligatorio.'); document.getElementById('cNombre').focus(); return; }
+        toast('Combo guardado.');
+        setTimeout(function () { window.location.href = 'catalogo.html'; }, 700);
+      });
+      document.getElementById('btnCancelar').addEventListener('click', function () { window.location.href = 'catalogo.html'; });
+      document.getElementById('btnVolver').addEventListener('click', function () { window.location.href = 'catalogo.html'; });
+
+      document.querySelectorAll('[data-acc]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var acc = b.getAttribute('data-acc');
+          var card = b.closest('.combo-card');
+          if (acc === 'editar') {
+            document.getElementById('cNombre').focus();
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            toast('Editando combo: completa el formulario.');
+          } else if (acc === 'toggle') {
+            var est = card.querySelector('.chk-estado');
+            var activo = est.classList.contains('activo');
+            est.className = 'chk-estado ' + (activo ? 'inactivo' : 'activo');
+            est.innerHTML = activo
+              ? '<span class="estado-dot"></span>Inactivo'
+              : '<span class="estado-dot"></span>Activo';
+            b.querySelector('i').className = activo ? 'bi bi-toggle-off' : 'bi bi-toggle-on';
+          }
+        });
+      });
+
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-module');
+          if (key === 'catalogo') window.location.href = 'catalogo.html';
+          else if (key === 'comandas') window.location.href = 'comandas.html';
+          else if (key === 'cocina') window.location.href = 'cocina.html';
+          else if (key === 'dashboard') window.location.href = 'dashboard.html';
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      calc();
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

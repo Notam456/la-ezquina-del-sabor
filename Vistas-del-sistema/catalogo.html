@@ -1,0 +1,588 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 4.1 — Lista de Productos (Catálogo)
+  Tabla densa de productos del menú con filtros por categoría, estado y búsqueda.
+  Tipo de vista: Lista (DESIGN.md §7). Basado en Bootstrap 5 + tokens de brand.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Catálogo · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 40px; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+
+  /* Barra de filtros */
+  .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .search-box { position: relative; flex: 1; min-width: 180px; }
+  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
+  .input-brand, .select-brand { width: 100%; background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 9px 12px; padding-left: 34px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .select-brand { padding-left: 12px; }
+  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .filter-selects { display: flex; gap: 10px; flex-wrap: wrap; }
+  .select-brand { width: auto; min-width: 150px; }
+  .filter-count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+  /* Tabla */
+  .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); overflow: hidden; }
+  .table-responsive { overflow-x: auto; }
+  table.cat { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.cat thead th { position: sticky; top: 0; background: var(--bg); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.cat tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.cat tbody tr:last-child td { border-bottom: 0; }
+  table.cat tbody tr { transition: background var(--motion-fast) var(--ease-out); }
+  table.cat tbody tr:hover { background: var(--surface-sunken); }
+  .col-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .col-cant { text-align: center; }
+
+  .prod-name { display: flex; align-items: center; gap: 10px; }
+  .prod-thumb { width: 34px; height: 34px; flex: 0 0 auto; border-radius: 9px; background: var(--surface-sunken); display: grid; place-items: center; color: var(--muted); font-size: 15px; }
+  .prod-name .n { font-weight: 600; color: var(--fg); }
+  .prod-name .d { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .receta-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--success); background: var(--success-soft); border-radius: 999px; padding: 2px 8px; margin-left: 6px; white-space: nowrap; }
+  .badge-cat { font-size: 12px; font-weight: 600; color: var(--fg-2); background: var(--surface-sunken); border-radius: 999px; padding: 3px 10px; display: inline-block; white-space: nowrap; }
+  .tipo-price { font-size: 12.5px; color: var(--fg-2); }
+  .tipo-price .m { font-family: var(--font-mono); font-weight: 600; color: var(--accent-ghost); }
+  .usd { font-family: var(--font-display); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--fg); }
+  .bs { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+  .chk-estado { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; }
+  .estado-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .estado-dot.activo { background: var(--success); }
+  .estado-dot.inactivo { background: var(--meta); }
+  .chk-estado.activo { color: var(--success); }
+  .chk-estado.inactivo { color: var(--meta); }
+  .row-actions { display: inline-flex; gap: 4px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid transparent; background: transparent; color: var(--muted); display: inline-grid; place-items: center; font-size: 15px; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .icon-btn:hover { background: var(--surface-sunken); color: var(--fg); border-color: var(--border-strong); }
+  .icon-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .icon-btn.toggle-on .bi-toggle-on { color: var(--success); }
+  .icon-btn.toggle-off .bi-toggle-off { color: var(--meta); }
+
+  .pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .pager-info { font-size: 13px; color: var(--muted); }
+  .pager-info strong { color: var(--fg); font-family: var(--font-mono); }
+  .pager-controls { display: flex; gap: 6px; }
+  .page-btn { min-width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--fg-2); font-weight: 600; font-size: 13px; display: inline-grid; place-items: center; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .page-btn:hover:not(:disabled):not(.current) { border-color: var(--fg-2); color: var(--fg); }
+  .page-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .page-btn.current { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .vacio { padding: 48px 20px; text-align: center; color: var(--meta); font-size: 14px; }
+
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (max-width: 767.98px) {
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-selects { flex-direction: column; }
+    .select-brand { width: 100%; min-width: 0; }
+    .filter-count { margin-left: 0; }
+    table.cat { min-width: 720px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item active" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip" data-od-id="tasa-bcv">
+            <span class="tasa-label">Tasa BCV</span>
+            <span>Bs 42,50 / USD</span>
+          </span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <div class="page-head">
+          <div>
+            <p class="page-eyebrow">Módulo catálogo · Lista de productos</p>
+            <h1 class="page-title">Catálogo de productos</h1>
+            <p class="page-sub">Menú completo: precios en USD y Bs, estado y receta vinculada.</p>
+          </div>
+          <div class="head-actions">
+            <button type="button" class="btn-ghost-brand" id="btnCombos"><i class="bi bi-collection"></i> Combos</button>
+            <button type="button" class="btn-primary-brand" id="btnNuevo"><i class="bi bi-plus-lg"></i> Nuevo producto</button>
+          </div>
+        </div>
+
+        <div class="filter-bar" data-od-id="filtros">
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" class="input-brand" id="buscar" placeholder="Buscar producto…" aria-label="Buscar producto" />
+          </div>
+          <div class="filter-selects">
+            <select class="select-brand" id="filtroCat" aria-label="Filtrar por categoría">
+              <option value="">Todas las categorías</option>
+              <option>Hamburguesas</option>
+              <option>Perros calientes</option>
+              <option>Arepas</option>
+              <option>Combos</option>
+              <option>Bebidas</option>
+              <option>Extras</option>
+            </select>
+            <select class="select-brand" id="filtroEstado" aria-label="Filtrar por estado">
+              <option value="">Todos los estados</option>
+              <option>Activo</option>
+              <option>Inactivo</option>
+            </select>
+          </div>
+          <span class="filter-count" id="contador">9 productos</span>
+        </div>
+
+        <div class="table-panel" data-od-id="tabla">
+          <div class="table-responsive">
+            <table class="cat">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Tipo de precio</th>
+                  <th class="col-num">Precio USD</th>
+                  <th class="col-num">Precio Bs</th>
+                  <th>Estado</th>
+                  <th style="text-align:right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <tr data-cat="Hamburguesas" data-estado="Activo" data-nombre="hamburguesa esquina">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-basket"></i></span>
+                      <div>
+                        <div class="n">Hamburguesa Esquina <span class="receta-badge"><i class="bi bi-link-45deg"></i> Receta</span></div>
+                        <div class="d">Pan artesanal · carne 150 g · queso</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat">Hamburguesas</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-percent"></i> Margen <span class="m">35%</span></span></td>
+                  <td class="col-num"><div class="usd">$ 5,50</div></td>
+                  <td class="col-num"><div class="bs">Bs 233,75</div></td>
+                  <td><span class="chk-estado activo"><span class="estado-dot activo"></span>Activo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-on"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-cat="Hamburguesas" data-estado="Activo" data-nombre="perro caliente">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-basket"></i></span>
+                      <div>
+                        <div class="n">Perro caliente</div>
+                        <div class="d">Pan suave · salchicha · salsas</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat">Perros calientes</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-percent"></i> Margen <span class="m">30%</span></span></td>
+                  <td class="col-num"><div class="usd">$ 3,00</div></td>
+                  <td class="col-num"><div class="bs">Bs 127,50</div></td>
+                  <td><span class="chk-estado activo"><span class="estado-dot activo"></span>Activo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-on"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-cat="Arepas" data-estado="Activo" data-nombre="arepa dominó">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-basket"></i></span>
+                      <div>
+                        <div class="n">Arepa dominó <span class="receta-badge"><i class="bi bi-link-45deg"></i> Receta</span></div>
+                        <div class="d">Frijoles negros · queso blanco</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat">Arepas</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-percent"></i> Margen <span class="m">32%</span></span></td>
+                  <td class="col-num"><div class="usd">$ 2,50</div></td>
+                  <td class="col-num"><div class="bs">Bs 106,25</div></td>
+                  <td><span class="chk-estado activo"><span class="estado-dot activo"></span>Activo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-on"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-cat="Bebidas" data-estado="Activo" data-nombre="jugo natural">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-cup-straw"></i></span>
+                      <div>
+                        <div class="n">Jugo natural</div>
+                        <div class="d">Naranja 500 ml</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat">Bebidas</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-tag"></i> Definido</span></td>
+                  <td class="col-num"><div class="usd">$ 1,50</div></td>
+                  <td class="col-num"><div class="bs">Bs 63,75</div></td>
+                  <td><span class="chk-estado activo"><span class="estado-dot activo"></span>Activo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-on"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-cat="Extras" data-estado="Activo" data-nombre="papas fritas extra">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-basket"></i></span>
+                      <div>
+                        <div class="n">Papas fritas extra</div>
+                        <div class="d">Porción grande · crujientes</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat">Extras</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-percent"></i> Margen <span class="m">28%</span></span></td>
+                  <td class="col-num"><div class="usd">$ 3,50</div></td>
+                  <td class="col-num"><div class="bs">Bs 148,75</div></td>
+                  <td><span class="chk-estado activo"><span class="estado-dot activo"></span>Activo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-on"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-cat="Combos" data-estado="Activo" data-nombre="combo esquina">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-basket"></i></span>
+                      <div>
+                        <div class="n">Combo Esquina</div>
+                        <div class="d">Hamburguesa · papas · refresco</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat" style="background:var(--accent-soft); color:var(--accent-ghost);">Combos</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-percent"></i> Descuento <span class="m">10%</span></span></td>
+                  <td class="col-num"><div class="usd">$ 8,00</div></td>
+                  <td class="col-num"><div class="bs">Bs 340,00</div></td>
+                  <td><span class="chk-estado activo"><span class="estado-dot activo"></span>Activo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-on"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-cat="Bebidas" data-estado="Inactivo" data-nombre="refresco 500ml">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-cup-straw"></i></span>
+                      <div>
+                        <div class="n">Refresco 500 ml</div>
+                        <div class="d">Lata · varios sabores</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat">Bebidas</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-tag"></i> Definido</span></td>
+                  <td class="col-num"><div class="usd">$ 1,00</div></td>
+                  <td class="col-num"><div class="bs">Bs 42,50</div></td>
+                  <td><span class="chk-estado inactivo"><span class="estado-dot inactivo"></span>Inactivo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-off"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-cat="Hamburguesas" data-estado="Inactivo" data-nombre="hamburguesa especial">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-basket"></i></span>
+                      <div>
+                        <div class="n">Hamburguesa Especial</div>
+                        <div class="d">Doble carne · tocineta</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat">Hamburguesas</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-percent"></i> Margen <span class="m">40%</span></span></td>
+                  <td class="col-num"><div class="usd">$ 7,00</div></td>
+                  <td class="col-num"><div class="bs">Bs 297,50</div></td>
+                  <td><span class="chk-estado inactivo"><span class="estado-dot inactivo"></span>Inactivo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-off"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr data-cat="Arepas" data-estado="Inactivo" data-nombre="arepa del señor">
+                  <td>
+                    <div class="prod-name">
+                      <span class="prod-thumb"><i class="bi bi-basket"></i></span>
+                      <div>
+                        <div class="n">Arepa del Señor</div>
+                        <div class="d">Reina pepiada · extra aguacate</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge-cat">Arepas</span></td>
+                  <td><span class="tipo-price"><i class="bi bi-percent"></i> Margen <span class="m">30%</span></span></td>
+                  <td class="col-num"><div class="usd">$ 3,25</div></td>
+                  <td class="col-num"><div class="bs">Bs 138,13</div></td>
+                  <td><span class="chk-estado inactivo"><span class="estado-dot inactivo"></span>Inactivo</span></td>
+                  <td>
+                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                      <button type="button" class="icon-btn" data-act="receta" title="Vincular receta"><i class="bi bi-link-45deg"></i></button>
+                      <button type="button" class="icon-btn" data-act="toggle" title="Activar/desactivar"><i class="bi bi-toggle-off"></i></button>
+                      <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="vacio" id="vacio" style="display:none;">No hay productos que coincidan con los filtros.</div>
+          <div class="pager" data-od-id="pager">
+            <span class="pager-info">Página <strong>1</strong> de <strong>1</strong></span>
+            <div class="pager-controls">
+              <button type="button" class="page-btn" disabled aria-label="Página anterior"><i class="bi bi-chevron-left"></i></button>
+              <button type="button" class="page-btn current">1</button>
+              <button type="button" class="page-btn" disabled aria-label="Página siguiente"><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item active" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var today = new Date();
+      var elDate = document.getElementById('todayDate');
+      if (elDate) elDate.textContent = today.getDate() + ' de ' + meses[today.getMonth()] + ' de ' + today.getFullYear();
+
+      document.getElementById('btnNuevo').addEventListener('click', function () { window.location.href = 'producto.html'; });
+      document.getElementById('btnCombos').addEventListener('click', function () { window.location.href = 'combos.html'; });
+
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-module');
+          if (key === 'catalogo') window.location.href = 'catalogo.html';
+          else if (key === 'comandas') window.location.href = 'comandas.html';
+          else if (key === 'cocina') window.location.href = 'cocina.html';
+          else if (key === 'dashboard') window.location.href = 'dashboard.html';
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      // Filtros + búsqueda
+      var buscar = document.getElementById('buscar');
+      var fCat = document.getElementById('filtroCat');
+      var fEstado = document.getElementById('filtroEstado');
+      var tbody = document.getElementById('tbody');
+      var vacio = document.getElementById('vacio');
+      var contador = document.getElementById('contador');
+
+      function aplicarFiltros() {
+        var q = buscar.value.toLowerCase().trim();
+        var cat = fCat.value;
+        var est = fEstado.value;
+        var visibles = 0;
+        Array.prototype.forEach.call(tbody.querySelectorAll('tr'), function (tr) {
+          var ok = true;
+          if (cat && tr.getAttribute('data-cat') !== cat) ok = false;
+          if (est && tr.getAttribute('data-estado') !== est) ok = false;
+          if (q && tr.getAttribute('data-nombre').indexOf(q) === -1) ok = false;
+          tr.style.display = ok ? '' : 'none';
+          if (ok) visibles++;
+        });
+        vacio.style.display = visibles === 0 ? 'block' : 'none';
+        contador.textContent = visibles + ' producto' + (visibles === 1 ? '' : 's');
+      }
+      buscar.addEventListener('input', aplicarFiltros);
+      fCat.addEventListener('change', aplicarFiltros);
+      fEstado.addEventListener('change', aplicarFiltros);
+
+      // Acciones de fila
+      tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest('.icon-btn');
+        if (!btn) return;
+        var tr = btn.closest('tr');
+        var act = btn.getAttribute('data-act');
+        if (act === 'editar') { window.location.href = 'producto.html'; }
+        else if (act === 'receta') { window.location.href = 'producto.html'; }
+        else if (act === 'toggle') {
+          var estSpan = tr.querySelector('.chk-estado');
+          var activo = estSpan.classList.contains('activo');
+          estSpan.classList.toggle('activo', !activo);
+          estSpan.classList.toggle('inactivo', activo);
+          estSpan.innerHTML = (activo
+            ? '<span class="estado-dot inactivo"></span>Inactivo'
+            : '<span class="estado-dot activo"></span>Activo');
+          tr.setAttribute('data-estado', activo ? 'Inactivo' : 'Activo');
+          var icon = btn.querySelector('i');
+          icon.className = activo ? 'bi bi-toggle-off' : 'bi bi-toggle-on';
+          aplicarFiltros();
+        }
+      });
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,514 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 12.1 — Gestión de Usuarios y Permisos
+  Administrar usuarios del sistema y configurar permisos granulados por rol.
+  Vista Lista (usuarios) + panel de permisos por rol (DESIGN.md §7).
+  Shell común. Solo accesible al Administrador.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Usuarios y permisos · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 48px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+
+  .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+  .f-field { display: flex; flex-direction: column; gap: 5px; }
+  .f-field .f-label { font-size: 12px; font-weight: 600; color: var(--fg-2); }
+  .search-box { flex: 1; min-width: 170px; position: relative; }
+  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
+  .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 9px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .input-brand { width: 100%; padding-left: 34px; }
+  .select-brand { width: auto; min-width: 140px; }
+  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+
+  .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); overflow: hidden; }
+  .table-responsive { overflow-x: auto; }
+  table.usr { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.usr thead th { position: sticky; top: 0; background: var(--bg); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.usr tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.usr tbody tr:last-child td { border-bottom: 0; }
+  table.usr tbody tr { transition: background var(--motion-fast) var(--ease-out); }
+  table.usr tbody tr:hover { background: var(--surface-sunken); }
+  .u-user { display: flex; align-items: center; gap: 11px; }
+  .u-name { font-weight: 600; color: var(--fg); }
+  .u-user .u-sub { font-size: 12.5px; color: var(--muted); }
+  .u-avatar { width: 36px; height: 36px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ghost); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .rol { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .rol.admin { background: var(--danger-soft); color: var(--danger); }
+  .rol.recep { background: var(--info-soft); color: var(--info); }
+  .rol.cocinero { background: var(--accent-soft); color: var(--accent-ghost); }
+  .estado { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+  .estado.activo { background: var(--success-soft); color: var(--success); }
+  .estado.inactivo { background: var(--surface-sunken); color: var(--muted); }
+  .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid transparent; background: transparent; color: var(--muted); display: inline-grid; place-items: center; font-size: 14px; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .icon-btn:hover { background: var(--surface-sunken); color: var(--fg); border-color: var(--border-strong); }
+  .icon-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .icon-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); }
+
+  /* Panel de permisos por rol */
+  .roles-tabs { display: inline-flex; border: 1.5px solid var(--border-strong); border-radius: 999px; overflow: hidden; }
+  .roles-tabs button { border: 0; background: var(--surface); color: var(--muted); font-weight: 600; font-size: 13px; padding: 8px 16px; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .roles-tabs button + button { border-left: 1.5px solid var(--border-strong); }
+  .roles-tabs button:focus-visible { box-shadow: var(--focus-ring); z-index: 1; position: relative; }
+  .roles-tabs button.active { background: var(--accent); color: var(--surface); }
+
+  .perm-grupo { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 14px; }
+  .perm-grupo-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .perm-grupo-title { font-size: 13px; font-weight: 700; color: var(--fg); display: flex; align-items: center; gap: 8px; }
+  .perm-grupo-title i { color: var(--accent-ghost); font-size: 15px; }
+  .perm-grupo .switch-all { font-size: 12px; color: var(--accent-ghost); font-weight: 600; border: 0; background: transparent; }
+  .perm-grupo .switch-all:focus-visible { box-shadow: var(--focus-ring); border-radius: 6px; }
+  .perm-rows { }
+  .perm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border); }
+  .perm-row:last-child { border-bottom: 0; }
+  .perm-row .pr-name { font-size: 14px; color: var(--fg-2); }
+  .perm-row .pr-desc { font-size: 12px; color: var(--meta); }
+
+  .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex: 0 0 auto; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border-strong); border-radius: 999px; transition: background var(--motion-fast) var(--ease-out); }
+  .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: var(--surface); border-radius: 50%; transition: transform var(--motion-fast) var(--ease-out); box-shadow: 0 1px 2px rgba(32,27,22,.2); }
+  .switch input:checked + .slider { background: var(--accent); }
+  .switch input:checked + .slider:before { transform: translateX(20px); }
+  .switch input:focus-visible + .slider { box-shadow: var(--focus-ring); }
+  .switch input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .panel-title { font-size: 16px; font-weight: 700; letter-spacing: -0.005em; margin: 0; color: var(--fg); }
+  .panel-body { padding: 20px; }
+
+  .modal-surface { background: var(--surface); color: var(--fg); border-radius: var(--radius-lg); }
+  .modal-header-brand, .modal-footer-brand { border-color: var(--border); }
+  .modal-footer-brand { padding: 14px 20px; }
+
+  .toast-slot { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1080; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .mini-toast { background: var(--footer-bg); color: var(--surface); font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 12px; box-shadow: var(--elev-2); display: flex; align-items: center; gap: 9px; animation: toastIn var(--motion-fast) var(--ease-out); }
+  .mini-toast.ok { background: var(--success); }
+  .mini-toast i { font-size: 16px; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (max-width: 767.98px) { .filter-bar { flex-direction: column; align-items: stretch; } .select-brand { width: 100%; min-width: 0; } table.usr { min-width: 640px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item active" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip"><span class="tasa-label">Tasa BCV</span><span>Bs 42,50 / USD</span></span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <div class="page-head">
+          <div>
+            <p class="page-eyebrow">Sistema · Seguridad</p>
+            <h1 class="page-title">Usuarios y permisos</h1>
+            <p class="page-sub">Administra usuarios y configura permisos granulados por rol y acción.</p>
+          </div>
+          <div class="head-actions">
+            <button type="button" class="btn-primary-brand" id="btnNuevoUsuario" data-bs-toggle="modal" data-bs-target="#modalUsuario"><i class="bi bi-person-plus"></i> Nuevo usuario</button>
+          </div>
+        </div>
+
+        <!-- Filtros de usuarios -->
+        <div class="filter-bar" data-od-id="filtros">
+          <div class="search-box">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" class="input-brand" id="buscarUsr" placeholder="Buscar usuario…" aria-label="Buscar usuario" />
+          </div>
+          <div class="f-field">
+            <span class="f-label">Rol</span>
+            <select class="select-brand" id="fRol">
+              <option value="">Todos los roles</option>
+              <option value="admin">Administrador</option>
+              <option value="recep">Recepcionista</option>
+              <option value="cocinero">Cocinero</option>
+            </select>
+          </div>
+          <div class="f-field">
+            <span class="f-label">Estado</span>
+            <select class="select-brand" id="fEstado">
+              <option value="">Todos</option>
+              <option value="activo">Activos</option>
+              <option value="inactivo">Inactivos</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <div class="table-panel mb-4" data-od-id="tabla-usuarios">
+          <div class="table-responsive">
+            <table class="usr">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Último acceso</th>
+                  <th style="text-align:right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyUsuarios" data-od-id="tbody-usuarios"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Panel de permisos por rol -->
+        <div class="panel" data-od-id="panel-permisos">
+          <div class="panel-head">
+            <h2 class="panel-title">Permisos por rol (acciones)</h2>
+            <div class="roles-tabs" id="rolesTabs">
+              <button type="button" data-rol="admin" class="active"><i class="bi bi-shield-lock me-1"></i> Administrador</button>
+              <button type="button" data-rol="recep"><i class="bi bi-person-badge me-1"></i> Recepcionista</button>
+              <button type="button" data-rol="cocinero"><i class="bi bi-fire me-1"></i> Cocinero</button>
+            </div>
+          </div>
+          <div class="panel-body" id="permisosContainer" data-od-id="permisos-container"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item active" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Modal nuevo usuario -->
+  <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content modal-surface">
+        <div class="modal-header modal-header-brand">
+          <h5 class="modal-title fs-6 fw-bold">Nuevo usuario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px;color:var(--fg-2);">Nombre completo <span style="color:var(--danger);">*</span></label>
+            <input type="text" class="form-control" id="nuNombre" style="border:1.5px solid var(--border-strong);" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px;color:var(--fg-2);">Usuario <span style="color:var(--danger);">*</span></label>
+            <input type="text" class="form-control" id="nuUsuario" style="border:1.5px solid var(--border-strong);" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px;color:var(--fg-2);">Contraseña <span style="color:var(--danger);">*</span></label>
+            <input type="password" class="form-control" id="nuPass" style="border:1.5px solid var(--border-strong);" />
+          </div>
+          <div class="mb-1">
+            <label class="form-label fw-semibold" style="font-size:13px;color:var(--fg-2);">Rol</label>
+            <select class="form-select" id="nuRol" style="border:1.5px solid var(--border-strong);">
+              <option value="recep">Recepcionista</option>
+              <option value="cocinero">Cocinero</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer modal-footer-brand">
+          <button type="button" class="btn btn-ghost-brand" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary-brand" id="btnGuardarUsuario"><i class="bi bi-check-lg"></i> Crear usuario</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-slot" id="toastSlot" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var today = new Date();
+      var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      document.getElementById('todayDate').textContent = today.getDate() + ' de ' +
+        ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][today.getMonth()] +
+        ' de ' + today.getFullYear();
+
+      var rutas = {
+        dashboard: 'dashboard.html', comandas: 'comandas.html', cocina: 'cocina.html',
+        ventas: 'ventas.html', creditos: 'creditos.html', catalogo: 'catalogo.html',
+        recetas: 'recetas.html', inventario: 'inventario.html', clientes: 'clientes.html',
+        reportes: 'reportes.html', usuarios: 'usuarios.html', configuracion: 'configuracion.html'
+      };
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var destino = rutas[b.getAttribute('data-module')];
+          if (destino) window.location.href = destino;
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      // Usuarios
+      var USUARIOS = [
+        { nombre: 'Gerente', usuario: 'gerente', rol: 'admin', rolLabel: 'Administrador', activo: true },
+        { nombre: 'María López', usuario: 'm.lopez', rol: 'recep', rolLabel: 'Recepcionista', activo: true },
+        { nombre: 'José Quintero', usuario: 'j.quintero', rol: 'cocinero', rolLabel: 'Cocinero', activo: true },
+        { nombre: 'Ana Gómez', usuario: 'a.gomez', rol: 'recep', rolLabel: 'Recepcionista', activo: true },
+        { nombre: 'Luis Mendoza', usuario: 'l.mendoza', rol: 'cocinero', rolLabel: 'Cocinero', activo: false }
+      ];
+      var tbody = document.getElementById('tbodyUsuarios');
+      var rolMap = { admin: 'admin', recep: 'recep', cocinero: 'cocinero' };
+      var estadoMap = { admin: 'activo', recep: 'activo', cocinero: 'activo' };
+
+      function renderUsuarios() {
+        var q = document.getElementById('buscarUsr').value.toLowerCase();
+        var fRol = document.getElementById('fRol').value;
+        var fEst = document.getElementById('fEstado').value;
+        var list = USUARIOS.filter(function (u) {
+          var okQ = !q || u.nombre.toLowerCase().indexOf(q) !== -1 || u.usuario.toLowerCase().indexOf(q) !== -1;
+          var okR = !fRol || u.rol === fRol;
+          var okE = !fEst || (u.activo && fEst === 'activo') || (!u.activo && fEst === 'inactivo');
+          return okQ && okR && okE;
+        });
+        tbody.innerHTML = list.map(function (u, i) {
+          return '<tr data-idx="' + i + '">' +
+            '<td><div class="u-user"><span class="u-avatar">' + u.nombre.split(' ').map(function (w) { return w[0]; }).join('').toUpperCase() + '</span><div><div class="u-name">' + u.nombre + '</div><div class="u-sub">@' + u.usuario + '</div></div></div></td>' +
+            '<td><span class="rol ' + u.rol + '">' + (u.rol === 'admin' ? '<i class="bi bi-shield-lock"></i>' : u.rol === 'recep' ? '<i class="bi bi-person-badge"></i>' : '<i class="bi bi-fire"></i>') + ' ' + u.rolLabel + '</span></td>' +
+            '<td><span class="estado ' + (u.activo ? 'activo' : 'inactivo') + '">' + (u.activo ? 'Activo' : 'Inactivo') + '</span></td>' +
+            '<td style="font-family:var(--font-mono);font-size:12.5px;color:var(--muted);">' + (i === 0 ? 'Hoy 08:12' : 'Hoy 07:5' + i) + '</td>' +
+            '<td><div class="row-actions" style="display:inline-flex;gap:4px;">' +
+              '<button type="button" class="icon-btn" title="Editar"><i class="bi bi-pencil"></i></button>' +
+              '<button type="button" class="icon-btn" title="Permisos"><i class="bi bi-sliders"></i></button>' +
+              '<button type="button" class="icon-btn danger" title="Desactivar"><i class="bi bi-person-slash"></i></button>' +
+            '</div></td>' +
+            '</tr>';
+        }).join('');
+        tbody.querySelectorAll('.row-actions .icon-btn').forEach(function (b) {
+          b.addEventListener('click', function () { toast('Acción de usuario (demo).'); });
+        });
+      }
+      ['buscarUsr','fRol','fEstado'].forEach(function (id) {
+        document.getElementById(id).addEventListener(id === 'buscarUsr' ? 'input' : 'change', renderUsuarios);
+      });
+
+      // Permisos por rol
+      var PERMISOS = {
+        operacion: { icono: 'bi-receipt', nombre: 'Operación / Comandas', items: [
+          { id: 'crear_comanda', nombre: 'Crear comanda', desc: 'Tomar pedidos' },
+          { id: 'imprimir_comanda', nombre: 'Imprimir comanda', desc: 'Enviar a cocina' },
+          { id: 'marcar_entrega', nombre: 'Marcar entrega', desc: 'Entregas parciales y total' },
+          { id: 'cobrar', nombre: 'Cobrar', desc: 'Procesar pagos y créditos' }
+        ]},
+        gestion: { icono: 'bi-box-seam', nombre: 'Gestión', items: [
+          { id: 'ver_catalogo', nombre: 'Ver catálogo', desc: 'Consultar productos' },
+          { id: 'editar_catalogo', nombre: 'Editar catálogo', desc: 'Crear/modificar productos y combos' },
+          { id: 'editar_recetas', nombre: 'Editar recetas', desc: 'Ingredientes y costos' },
+          { id: 'editar_inventario', nombre: 'Editar inventario', desc: 'Compras, mermas y stock' },
+          { id: 'ver_clientes', nombre: 'Ver clientes', desc: 'Registro y puntos' },
+          { id: 'ver_canjes', nombre: 'Canjear puntos', desc: 'Emitir tarjetas de regalo' }
+        ]},
+        sistema: { icono: 'bi-gear', nombre: 'Sistema / Reportes', items: [
+          { id: 'ver_reportes', nombre: 'Ver reportes', desc: 'Estadísticas y exportación' },
+          { id: 'gestionar_creditos', nombre: 'Gestionar créditos', desc: 'Abonos y seguimiento' },
+          { id: 'cierre_jornada', nombre: 'Cerrar jornada', desc: 'Cuadre de caja' },
+          { id: 'gestionar_usuarios', nombre: 'Gestionar usuarios', desc: 'Usuarios y permisos' },
+          { id: 'configurar', nombre: 'Configurar sistema', desc: 'Tasa, impresora y datos' }
+        ]}
+      };
+      var POR_ROL = {
+        admin: { crear_comanda: true, imprimir_comanda: true, marcar_entrega: true, cobrar: true, ver_catalogo: true, editar_catalogo: true, editar_recetas: true, editar_inventario: true, ver_clientes: true, ver_canjes: true, ver_reportes: true, gestionar_creditos: true, cierre_jornada: true, gestionar_usuarios: true, configurar: true },
+        recep: { crear_comanda: true, imprimir_comanda: true, marcar_entrega: true, cobrar: true, ver_catalogo: true, ver_clientes: true, ver_canjes: true, gestionar_creditos: true, cierre_jornada: false, ver_reportes: false, editar_catalogo: false, editar_recetas: false, editar_inventario: false, gestionar_usuarios: false, configurar: false },
+        cocinero: { crear_comanda: false, imprimir_comanda: true, marcar_entrega: true, cobrar: false, ver_catalogo: true, ver_clientes: false, ver_canjes: false, gestionar_creditos: false, cierre_jornada: false, ver_reportes: false, editar_catalogo: false, editar_recetas: true, editar_inventario: true, gestionar_usuarios: false, configurar: false }
+      };
+
+      var rolActivo = 'admin';
+      function renderPermisos() {
+        var c = document.getElementById('permisosContainer');
+        c.innerHTML = Object.keys(PERMISOS).map(function (gKey) {
+          var g = PERMISOS[gKey];
+          var todosEncendidos = g.items.every(function (it) { return POR_ROL[rolActivo][it.id]; });
+          return '<div class="perm-grupo" data-grupo="' + gKey + '">' +
+            '<div class="perm-grupo-head"><span class="perm-grupo-title"><i class="bi ' + g.icono + '"></i> ' + g.nombre + '</span>' +
+            '<button type="button" class="switch-all" data-todos="' + gKey + '">' + (todosEncendidos ? 'Desactivar todo' : 'Activar todo') + '</button></div>' +
+            '<div class="perm-rows">' +
+            g.items.map(function (it) {
+              var on = POR_ROL[rolActivo][it.id];
+              var disabled = rolActivo === 'admin' && (it.id === 'configurar' || it.id === 'gestionar_usuarios');
+              return '<div class="perm-row"><div><div class="pr-name">' + it.nombre + '</div><div class="pr-desc">' + it.desc + '</div></div>' +
+                '<label class="switch"><input type="checkbox" data-id="' + it.id + '"' + (on ? ' checked' : '') + (disabled ? ' disabled' : '') + '><span class="slider"></span></label></div>';
+            }).join('') +
+            '</div></div>';
+        }).join('');
+
+        c.querySelectorAll('.switch input').forEach(function (inp) {
+          inp.addEventListener('change', function () {
+            POR_ROL[rolActivo][inp.getAttribute('data-id')] = inp.checked;
+            renderPermisos();
+          });
+        });
+        c.querySelectorAll('.switch-all').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var g = PERMISOS[b.getAttribute('data-todos')];
+            var allOn = g.items.every(function (it) { return POR_ROL[rolActivo][it.id]; });
+            g.items.forEach(function (it) { POR_ROL[rolActivo][it.id] = !allOn; });
+            renderPermisos();
+            toast('Permisos de ' + g.nombre + ' actualizados.', 'ok');
+          });
+        });
+      }
+      document.querySelectorAll('#rolesTabs button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('#rolesTabs button').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active');
+          rolActivo = b.getAttribute('data-rol');
+          renderPermisos();
+        });
+      });
+
+      // Nuevo usuario
+      document.getElementById('btnGuardarUsuario').addEventListener('click', function () {
+        var nom = document.getElementById('nuNombre').value.trim();
+        var usr = document.getElementById('nuUsuario').value.trim();
+        var pass = document.getElementById('nuPass').value.trim();
+        if (!nom || !usr || !pass) { toast('Completa todos los campos.'); return; }
+        var rol = document.getElementById('nuRol').value;
+        var rolLabel = rol === 'admin' ? 'Administrador' : rol === 'recep' ? 'Recepcionista' : 'Cocinero';
+        USUARIOS.push({ nombre: nom, usuario: usr, rol: rol, rolLabel: rolLabel, activo: true });
+        renderUsuarios();
+        var m = bootstrap.Modal.getInstance(document.getElementById('modalUsuario'));
+        m.hide();
+        toast('Usuario "' + nom + '" creado.', 'ok');
+      });
+
+      function toast(msg, tipo) {
+        var slot = document.getElementById('toastSlot');
+        var el = document.createElement('div');
+        el.className = 'mini-toast' + (tipo === 'ok' ? ' ok' : '');
+        el.innerHTML = (tipo === 'ok' ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-info-circle-fill"></i>') + '<span>' + msg + '</span>';
+        slot.appendChild(el);
+        setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity 220ms'; setTimeout(function () { el.remove(); }, 230); }, 2200);
+      }
+
+      renderUsuarios();
+      renderPermisos();
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

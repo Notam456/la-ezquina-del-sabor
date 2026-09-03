@@ -1,0 +1,450 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 5.2 — Editor de Receta
+  Definir ingredientes y cantidades de una receta y calcular su costo (USD/Bs) con precios vigentes.
+  Layout Detalle/editor (DESIGN.md §7). Basado en Bootstrap 5 + tokens de brand.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Receta · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 40px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+
+  .form-grid { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 20px; align-items: start; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); }
+  .panel-pad { padding: 20px 22px; }
+  .sec-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .sec-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 16px; color: var(--fg); }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--fg-2); margin-bottom: 6px; }
+  .field label .req { color: var(--danger); }
+  .field .help { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+  .input-brand, .select-brand { width: 100%; background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 10px 14px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
+  /* Tabla de ingredientes */
+  .ing-meta, .ing-linea { display: grid; grid-template-columns: minmax(0,2.2fr) 96px 104px 70px 38px; gap: 10px; align-items: center; }
+  .ing-meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--meta); padding: 8px 10px; background: var(--bg); border-radius: 8px; margin-bottom: 8px; }
+  .ing-meta .l-num { text-align: right; }
+  .ing-lineas { display: flex; flex-direction: column; gap: 8px; }
+  .ing-linea { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 10px; animation: rowIn var(--motion-fast) var(--ease-out); }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .ing-linea .input-brand, .ing-linea .select-brand { padding: 8px 10px; }
+  .ing-linea .l-cant input, .ing-linea .l-unidad select { text-align: center; }
+  .l-subtotal { text-align: right; }
+  .l-subtotal .usd { font-family: var(--font-display); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .l-subtotal .bs { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .kill-btn { width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid transparent; background: transparent; color: var(--danger); display: inline-grid; place-items: center; font-size: 15px; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
+  .kill-btn:hover { background: var(--danger-soft); border-color: var(--danger); }
+  .kill-btn:focus-visible { box-shadow: 0 0 0 3px rgba(163,58,34,.3); outline: none; }
+  .add-btn { width: 100%; margin-top: 12px; background: transparent; border: 1.5px dashed var(--border-strong); color: var(--accent-ghost); font-weight: 600; font-size: 13.5px; border-radius: var(--radius-md); padding: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+  .add-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
+  .aviso { display: flex; align-items: flex-start; gap: 10px; background: var(--warn-soft); color: var(--warn); border-radius: var(--radius-md); padding: 11px 14px; font-size: 13px; margin-top: 14px; }
+  .aviso i { font-size: 16px; margin-top: 1px; }
+  .aviso.ok { background: var(--success-soft); color: var(--success); }
+
+  /* Panel lateral */
+  .side-panel { position: sticky; top: calc(var(--topbar-h) + 24px); }
+  .side-label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .calc-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+  .calc-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 5px 0; }
+  .calc-row .k { font-size: 13.5px; color: var(--fg-2); }
+  .v-usd { font-family: var(--font-display); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--fg); }
+  .calc-bs { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; }
+  .calc-row.total { border-top: 1.5px solid var(--border-strong); margin-top: 6px; padding-top: 12px; }
+  .calc-row.total .k { font-weight: 700; color: var(--fg); }
+  .calc-row.total .v-usd { color: var(--accent-strong); font-size: 22px; }
+  .calc-bs.accent { color: var(--accent-ghost); font-size: 14px; font-weight: 600; }
+  .side-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .btn-cancel { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 12px 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-cancel:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-cancel:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+
+  .toast-slot { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1080; }
+  .mini-toast { background: var(--footer-bg); color: var(--surface); font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 12px; box-shadow: var(--elev-2); display: flex; align-items: center; gap: 9px; animation: toastIn var(--motion-fast) var(--ease-out); }
+  .mini-toast.ok { background: var(--success); }
+  .mini-toast i { font-size: 16px; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 1199.98px) { .form-grid { grid-template-columns: 1fr; } .side-panel { position: static; } }
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (max-width: 640px) {
+    .ing-meta, .ing-linea { grid-template-columns: minmax(0,1fr) 76px 90px 34px; }
+    .ing-meta .l-cola, .ing-linea .l-elim { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item active" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip" data-od-id="tasa-bcv">
+            <span class="tasa-label">Tasa BCV</span>
+            <span>Bs 42,50 / USD</span>
+          </span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <div class="page-head">
+          <div>
+            <button type="button" class="btn btn-link p-0 mb-1" id="btnVolver" style="color:var(--accent-ghost); font-weight:600; font-size:13px; text-decoration:none;"><i class="bi bi-arrow-left"></i> Volver a recetas</button>
+            <p class="page-eyebrow" style="margin-bottom:2px;">Módulo recetas · Editor</p>
+            <h1 class="page-title">Editor de receta</h1>
+            <p class="page-sub" id="pageSub">Define los ingredientes y el costo se calcula automáticamente.</p>
+          </div>
+          <button type="button" class="btn-ghost-brand" id="btnRecalcular"><i class="bi bi-arrow-repeat"></i> Recalcular costo</button>
+        </div>
+
+        <div class="form-grid">
+
+          <section class="panel panel-pad" data-od-id="form" style="min-width:0;">
+            <p class="sec-eyebrow">Receta</p>
+            <h2 class="sec-title">Vinculación y composición</h2>
+
+            <div class="field">
+              <label for="rProducto">Producto <span class="req">*</span></label>
+              <select class="select-brand" id="rProducto">
+                <option value="" selected>Selecciona el producto…</option>
+                <option>Hamburguesa Esquina</option>
+                <option>Perro caliente</option>
+                <option>Arepa dominó</option>
+                <option>Papas fritas extra</option>
+                <option>Jugo natural</option>
+              </select>
+              <div class="help"><i class="bi bi-link-45deg"></i> La receta se vincula al producto del menú para actualizar su costo.</div>
+            </div>
+
+            <hr style="border-top:1px solid var(--border); margin:20px 0;" />
+
+            <p class="sec-eyebrow">Ingredientes</p>
+            <h2 class="sec-title" style="font-size:18px;">Materia prima por unidad de receta</h2>
+
+            <div class="ing-meta" data-od-id="ing-head">
+              <span>Ingrediente</span>
+              <span style="text-align:center;">Cantidad</span>
+              <span style="text-align:center;">Unidad</span>
+              <span class="l-num">Subtotal</span>
+              <span class="l-cola" style="text-align:right;">&nbsp;</span>
+            </div>
+
+            <div class="ing-lineas" id="ingLineas">
+
+              <div class="ing-linea">
+                <select class="select-brand ing-sel">
+                  <option value="2.50" selected>Pan artesanal — $ 2,50</option>
+                  <option value="4.00">Carne 150 g — $ 4,00</option>
+                  <option value="1.20">Queso — $ 1,20</option>
+                  <option value="0.80">Salsa especial — $ 0,80</option>
+                  <option value="0.00">Picante casero — sin precio</option>
+                </select>
+                <div class="l-cant"><input type="number" class="input-brand ing-cant" value="1" min="0.01" step="0.01" aria-label="Cantidad" style="text-align:center; padding:8px 10px;" /></div>
+                <div class="l-unidad"><select class="select-brand"><option>unidad</option><option>g</option><option>ml</option><option>kg</option><option>lb</option></select></div>
+                <div class="l-subtotal"><div class="usd">$ 2,50</div><div class="bs">Bs 106,25</div></div>
+                <div class="l-elim" style="display:flex; justify-content:flex-end;"><button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button></div>
+              </div>
+
+              <div class="ing-linea">
+                <select class="select-brand ing-sel">
+                  <option value="2.50">Pan artesanal — $ 2,50</option>
+                  <option value="4.00" selected>Carne 150 g — $ 4,00</option>
+                  <option value="1.20">Queso — $ 1,20</option>
+                  <option value="0.80">Salsa especial — $ 0,80</option>
+                  <option value="0.00">Picante casero — sin precio</option>
+                </select>
+                <div class="l-cant"><input type="number" class="input-brand ing-cant" value="1" min="0.01" step="0.01" aria-label="Cantidad" style="text-align:center; padding:8px 10px;" /></div>
+                <div class="l-unidad"><select class="select-brand"><option>unidad</option><option selected>g</option><option>ml</option><option>kg</option><option>lb</option></select></div>
+                <div class="l-subtotal"><div class="usd">$ 4,00</div><div class="bs">Bs 170,00</div></div>
+                <div class="l-elim" style="display:flex; justify-content:flex-end;"><button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button></div>
+              </div>
+
+              <div class="ing-linea">
+                <select class="select-brand ing-sel">
+                  <option value="2.50">Pan artesanal — $ 2,50</option>
+                  <option value="4.00">Carne 150 g — $ 4,00</option>
+                  <option value="1.20" selected>Queso — $ 1,20</option>
+                  <option value="0.80">Salsa especial — $ 0,80</option>
+                  <option value="0.00">Picante casero — sin precio</option>
+                </select>
+                <div class="l-cant"><input type="number" class="input-brand ing-cant" value="2" min="0.01" step="0.01" aria-label="Cantidad" style="text-align:center; padding:8px 10px;" /></div>
+                <div class="l-unidad"><select class="select-brand"><option selected>unidad</option><option>g</option><option>ml</option><option>kg</option><option>lb</option></select></div>
+                <div class="l-subtotal"><div class="usd">$ 2,40</div><div class="bs">Bs 102,00</div></div>
+                <div class="l-elim" style="display:flex; justify-content:flex-end;"><button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button></div>
+              </div>
+
+            </div>
+
+            <button type="button" class="add-btn" id="btnAgregar"><i class="bi bi-plus-lg"></i> Agregar ingrediente</button>
+
+            <div class="aviso" id="avisoFalta" style="display:none;">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span id="avisoTexto">Falta definir el precio de algunos ingredientes para completar el cálculo.</span>
+            </div>
+          </section>
+
+          <!-- Panel lateral -->
+          <aside class="side-panel" data-od-id="costo">
+            <div class="panel panel-pad">
+              <p class="side-label">Costo de la receta</p>
+              <div class="calc-box">
+                <div class="calc-row"><span class="k">Nº de ingredientes</span><span class="tabular" id="kIng" style="font-family:var(--font-mono);">3</span></div>
+                <div class="calc-row total"><span class="k">Costo total</span><span><div class="v-usd" id="kUsd">$ 8,90</div><div class="calc-bs accent" id="kBs">Bs 378,25</div></span></div>
+              </div>
+              <div class="side-actions">
+                <button type="button" class="btn-primary-brand" id="btnGuardar"><i class="bi bi-check-lg"></i> Guardar receta</button>
+                <button type="button" class="btn-cancel" id="btnCancelar"><i class="bi bi-x-lg"></i> Cancelar</button>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item active" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <div class="toast-slot" id="toastSlot"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var TASA = 42.50;
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var today = new Date();
+      var elDate = document.getElementById('todayDate');
+      if (elDate) elDate.textContent = today.getDate() + ' de ' + meses[today.getMonth()] + ' de ' + today.getFullYear();
+
+      function num(v) { var n = parseFloat(v); return isNaN(n) || n < 0 ? 0 : n; }
+      function fmt(n) { return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+      function usd(n) { return '$ ' + fmt(n); }
+      function bsf(n) { return 'Bs ' + fmt(n); }
+
+      var optHTML = document.querySelector('.ing-sel').innerHTML;
+      var unidadOpts = '<select class="select-brand"><option selected>unidad</option><option>g</option><option>ml</option><option>kg</option><option>lb</option></select>';
+
+      function agregarLinea() {
+        var div = document.createElement('div');
+        div.className = 'ing-linea';
+        div.innerHTML =
+          '<select class="select-brand ing-sel">' + optHTML + '</select>' +
+          '<div class="l-cant"><input type="number" class="input-brand ing-cant" value="1" min="0.01" step="0.01" aria-label="Cantidad" style="text-align:center; padding:8px 10px;" /></div>' +
+          '<div class="l-unidad">' + unidadOpts + '</div>' +
+          '<div class="l-subtotal"><div class="usd">$ 0,00</div><div class="bs">Bs 0,00</div></div>' +
+          '<div class="l-elim" style="display:flex; justify-content:flex-end;"><button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button></div>';
+        document.getElementById('ingLineas').appendChild(div);
+        return div;
+      }
+      document.getElementById('btnAgregar').addEventListener('click', function () {
+        agregarLinea();
+        calc();
+      });
+
+      function calc() {
+        var lineas = document.querySelectorAll('#ingLineas .ing-linea');
+        var total = 0;
+        var sinPrecio = 0;
+        lineas.forEach(function (l) {
+          var precio = num(l.querySelector('.ing-sel').value);
+          var cant = num(l.querySelector('.ing-cant').value);
+          var sub = precio * cant;
+          l.querySelector('.l-subtotal .usd').textContent = usd(sub);
+          l.querySelector('.l-subtotal .bs').textContent = bsf(sub * TASA);
+          if (precio === 0 && cant > 0) sinPrecio++;
+          total += sub;
+        });
+        document.getElementById('kIng').textContent = lineas.length;
+        document.getElementById('kUsd').textContent = usd(total);
+        document.getElementById('kBs').textContent = bsf(total * TASA);
+
+        var aviso = document.getElementById('avisoFalta');
+        if (sinPrecio > 0) {
+          aviso.style.display = 'flex';
+          aviso.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i><span>' + sinPrecio + ' ingrediente' + (sinPrecio === 1 ? '' : 's') + ' sin precio definido: el costo puede estar incompleto.</span>';
+        } else {
+          aviso.style.display = 'none';
+        }
+      }
+
+      document.getElementById('ingLineas').addEventListener('click', function (e) {
+        var kill = e.target.closest('.kill-btn');
+        if (!kill) return;
+        var lineas = document.querySelectorAll('#ingLineas .ing-linea');
+        if (lineas.length === 1) {
+          kill.closest('.ing-linea').querySelector('.ing-sel').selectedIndex = 0;
+          kill.closest('.ing-linea').querySelector('.ing-cant').value = 1;
+        } else {
+          kill.closest('.ing-linea').remove();
+        }
+        calc();
+      });
+
+      document.getElementById('ingLineas').addEventListener('change', calc);
+      document.getElementById('ingLineas').addEventListener('input', function (e) {
+        if (e.target.classList.contains('ing-cant')) calc();
+      });
+
+      document.getElementById('btnRecalcular').addEventListener('click', calc);
+
+      function toast(msg) {
+        var slot = document.getElementById('toastSlot');
+        slot.innerHTML = '<div class="mini-toast ok"><i class="bi bi-check-circle-fill"></i><span>' + msg + '</span></div>';
+        setTimeout(function () { slot.innerHTML = ''; }, 2000);
+      }
+
+      document.getElementById('btnGuardar').addEventListener('click', function () {
+        var prod = document.getElementById('rProducto').value;
+        if (!prod) { toast('Selecciona el producto al que se vincula la receta.'); return; }
+        toast('Receta guardada y costo actualizado.');
+        setTimeout(function () { window.location.href = 'recetas.html'; }, 700);
+      });
+      document.getElementById('btnCancelar').addEventListener('click', function () { window.location.href = 'recetas.html'; });
+      document.getElementById('btnVolver').addEventListener('click', function () { window.location.href = 'recetas.html'; });
+
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-module');
+          if (key === 'recetas') window.location.href = 'recetas.html';
+          else if (key === 'catalogo') window.location.href = 'catalogo.html';
+          else if (key === 'comandas') window.location.href = 'comandas.html';
+          else if (key === 'cocina') window.location.href = 'cocina.html';
+          else if (key === 'dashboard') window.location.href = 'dashboard.html';
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      calc();
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

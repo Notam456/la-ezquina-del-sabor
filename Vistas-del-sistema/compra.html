@@ -1,0 +1,407 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 6.2 — Registro de Compra
+  Entrada de stock de materia prima: actualiza existencias y costo de última compra.
+  Vista Registro (DESIGN.md §7): panel principal + panel lateral sticky. Shell común.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Registrar compra · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 40px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .breadcrumb-nav { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .breadcrumb-nav a { color: var(--accent-ghost); font-weight: 500; }
+  .breadcrumb-nav a:hover { text-decoration: underline; }
+  .breadcrumb-nav .sep { color: var(--meta); }
+
+  .layout { display: grid; grid-template-columns: 1fr 320px; gap: 22px; align-items: start; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); }
+  .panel-head { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .panel-title { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+  .panel-desc { font-size: 13px; color: var(--muted); margin: 3px 0 0; }
+  .panel-body { padding: 20px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  .label { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+  .label .req { color: var(--danger); }
+  .hint { font-size: 12px; color: var(--muted); }
+  .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 10px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); width: 100%; transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .input-group-x { position: relative; }
+  .input-group-x .pre { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-weight: 600; }
+  .input-group-x .post { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .input-brand.padx { padding-left: 30px; }
+  .input-brand.padx-r { padding-right: 34px; }
+  textarea.input-brand { min-height: 88px; resize: vertical; }
+
+  .mini-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: var(--surface-sunken); border-radius: var(--radius-md); margin-bottom: 8px; font-size: 13px; }
+  .mini-row .k { color: var(--fg-2); }
+  .mini-row .v { font-family: var(--font-mono); font-weight: 600; color: var(--fg); }
+
+  .confirm-box { background: var(--success-soft); border: 1px solid color-mix(in oklab, var(--success) 30%, transparent); border-radius: var(--radius-md); padding: 13px 15px; display: none; gap: 10px; margin-top: 16px; }
+  .confirm-box.show { display: flex; }
+  .confirm-box i { color: var(--success); font-size: 18px; }
+  .confirm-box .t { font-weight: 600; color: var(--success); font-size: 13.5px; }
+  .confirm-box .s { color: var(--fg-2); font-size: 12.5px; margin-top: 2px; }
+  .confirm-box .mono { font-family: var(--font-mono); }
+
+  .side-sticky { position: sticky; top: calc(var(--topbar-h) + 20px); display: flex; flex-direction: column; gap: 14px; }
+  .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--elev-1); }
+  .sum-card .t { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); margin-bottom: 12px; }
+  .sum-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; font-size: 14px; }
+  .sum-row .lab { color: var(--fg-2); }
+  .sum-row .val { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sum-row .val .bs { display: block; font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-weight: 500; text-align: right; }
+  .sum-row.total { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; }
+  .sum-row.total .val { font-size: 19px; color: var(--accent-ghost); }
+  .sum-hint { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; }
+
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 15px; border-radius: var(--radius-md); padding: 12px 16px; border: 0; cursor: pointer; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 12px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+  .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .form-actions .btn-ghost-brand { flex: 2; }
+  .form-actions .btn-primary-brand { flex: 3; width: auto; }
+
+  .stock-info { display: flex; align-items: center; gap: 10px; background: var(--surface-sunken); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 18px; font-size: 13px; }
+  .stock-info i { font-size: 16px; color: var(--accent-ghost); }
+  .stock-info .d { color: var(--fg-2); }
+  .stock-info .d strong { font-family: var(--font-mono); font-size: 14px; color: var(--fg); }
+
+  @media (max-width: 1199.98px) { .layout { grid-template-columns: 1fr; } .side-sticky { position: static; } }
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (max-width: 767.98px) { .form-grid { grid-template-columns: 1fr; } .content { padding: 16px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item active" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip"><span class="tasa-label">Tasa BCV</span><span>Bs 42,50 / USD</span></span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <nav class="breadcrumb-nav">
+          <a href="inventario.html">Inventario</a>
+          <span class="sep">/</span>
+          <span>Registro de compra</span>
+        </nav>
+
+        <div class="page-head">
+          <div>
+            <p class="page-eyebrow">Entrada de stock · Matteria prima</p>
+            <h1 class="page-title">Registrar compra</h1>
+            <p class="page-sub">Registra la compra y actualiza existencias y costo de última compra.</p>
+          </div>
+        </div>
+
+        <div class="layout">
+          <div class="panel" data-od-id="formulario">
+            <div class="panel-head">
+              <h2 class="panel-title">Datos de la compra</h2>
+              <p class="panel-desc">Completa los campos para registrar la entrada de inventario.</p>
+            </div>
+            <div class="panel-body">
+              <div class="stock-info">
+                <i class="bi bi-box-seam"></i>
+                <span class="d">Materia prima seleccionada: <strong id="stockActual">Carne molida 150 g</strong></span>
+              </div>
+              <div class="form-grid">
+                <div class="field full">
+                  <label class="label" for="mp">Materia prima <span class="req">*</span></label>
+                  <select class="select-brand" id="mp">
+                    <option value="carne" selected>Carne molida 150 g</option>
+                    <option value="pan">Pan artesanal</option>
+                    <option value="queso">Queso blanco</option>
+                    <option value="pandeperro">Pan de perro caliente</option>
+                    <option value="papas">Papas (para freír)</option>
+                    <option value="salsa">Salsa especial</option>
+                    <option value="frijoles">Frijoles negros</option>
+                    <option value="refrescos">Refrescos (lata)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="label" for="cant">Cantidad <span class="req">*</span></label>
+                  <div class="input-group-x">
+                    <input type="number" class="input-brand padx-r" id="cant" value="5" min="0" step="0.01" placeholder="0" />
+                    <span class="post" id="uniPost">kg</span>
+                  </div>
+                  <span class="hint">Cantidad recibida de esta compra.</span>
+                </div>
+                <div class="field">
+                  <label class="label" for="precio">Precio de compra (USD) <span class="req">*</span></label>
+                  <div class="input-group-x">
+                    <span class="pre">$</span>
+                    <input type="number" class="input-brand padx" id="precio" value="4.10" min="0" step="0.01" placeholder="0,00" />
+                  </div>
+                  <span class="hint">Precio unitario pagado. Actualiza el costo de última compra.</span>
+                </div>
+                <div class="field">
+                  <label class="label" for="prov">Proveedor</label>
+                  <input type="text" class="input-brand" id="prov" placeholder="Opcional" />
+                </div>
+                <div class="field">
+                  <label class="label" for="fecha">Fecha <span class="req">*</span></label>
+                  <input type="date" class="input-brand" id="fecha" />
+                </div>
+                <div class="field">
+                  <label class="label" for="nota">Nota</label>
+                  <textarea class="input-brand" id="nota" placeholder="Opcional"></textarea>
+                </div>
+              </div>
+
+              <div class="confirm-box" id="confirmBox">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>
+                  <div class="t">Compra registrada</div>
+                  <div class="s">+5 kg de <span class="mono">Carne molida 150 g</span>. Nuevo stock: 6,4 kg. Costo actualizado a <span class="mono">$ 4,10</span>.</div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn-ghost-brand" id="btnCancelar"><i class="bi bi-arrow-left"></i> Volver a inventario</button>
+                <button type="button" class="btn-primary-brand" id="btnGuardar"><i class="bi bi-check-lg"></i> Guardar entrada</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="side-sticky" data-od-id="resumen">
+            <div class="sum-card">
+              <div class="t">Resumen de la compra</div>
+              <div class="sum-row"><span class="lab">Cantidad</span><span class="val tabular" id="rCant">5 kg</span></div>
+              <div class="sum-row"><span class="lab">Precio unitario</span><span class="val tabular">$ 4,10</span></div>
+              <div class="sum-row total"><span class="lab">Total compra</span><span class="val tabular" id="rTotal">$ 20,50<span class="bs">Bs 871,25</span></span></div>
+              <p class="sum-hint">El total se calcula según la tasa BCV.</p>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item active" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var today = new Date();
+      var elDate = document.getElementById('todayDate');
+      if (elDate) elDate.textContent = today.getDate() + ' de ' + meses[today.getMonth()] + ' de ' + today.getFullYear();
+
+      var TASA = 42.50;
+      var hoy = new Date();
+      var mm = String(hoy.getMonth() + 1).padStart(2, '0');
+      var dd = String(hoy.getDate()).padStart(2, '0');
+      document.getElementById('fecha').value = hoy.getFullYear() + '-' + mm + '-' + dd;
+
+      var datos = {
+        carne:   { uni: 'kg',  stock: 1.4, costo: 4.00, label: 'Carne molida 150 g' },
+        pan:     { uni: 'unidad', stock: 12, costo: 0.90, label: 'Pan artesanal' },
+        queso:   { uni: 'kg',  stock: 2.1, costo: 3.60, label: 'Queso blanco' },
+        pandeperro: { uni: 'unidad', stock: 38, costo: 0.45, label: 'Pan de perro caliente' },
+        papas:   { uni: 'kg',  stock: 9,   costo: 2.20, label: 'Papas (para freír)' },
+        salsa:   { uni: 'ml',  stock: 1.2, costo: 0.80, label: 'Salsa especial' },
+        frijoles:{ uni: 'kg',  stock: 5.5, costo: 2.00, label: 'Frijoles negros' },
+        refrescos:{uni: 'unidad', stock: 72, costo: 0.70, label: 'Refrescos (lata)' }
+      };
+
+      function fmt(n) {
+        return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function fmtN(n) {
+        var str = n.toLocaleString('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+        return str;
+      }
+
+      var mp = document.getElementById('mp');
+      var cant = document.getElementById('cant');
+      var precio = document.getElementById('precio');
+      var uniPost = document.getElementById('uniPost');
+      var stockActual = document.getElementById('stockActual');
+      var rCant = document.getElementById('rCant');
+      var rTotal = document.getElementById('rTotal');
+
+      function actualizar() {
+        var d = datos[mp.value];
+        uniPost.textContent = d.uni;
+        stockActual.textContent = d.label + ' — stock actual: ' + fmtN(d.stock) + ' ' + d.uni;
+        var q = parseFloat(cant.value) || 0;
+        var p = parseFloat(precio.value) || 0;
+        var total = q * p;
+        rCant.textContent = fmtN(q) + ' ' + d.uni;
+        rTotal.innerHTML = '$ ' + fmt(total) + '<span class="bs">Bs ' + fmt(total * TASA) + '</span>';
+      }
+      mp.addEventListener('change', actualizar);
+      cant.addEventListener('input', actualizar);
+      precio.addEventListener('input', actualizar);
+
+      document.getElementById('btnGuardar').addEventListener('click', function () {
+        var q = parseFloat(cant.value) || 0;
+        var p = parseFloat(precio.value) || 0;
+        if (q <= 0 || p <= 0) { toast('Ingresa cantidad y precio de compra válidos.'); return; }
+        var d = datos[mp.value];
+        var nuevo = fmtN((d.stock + q)) + ' ' + d.uni;
+        document.getElementById('confirmBox').classList.add('show');
+        document.getElementById('confirmBox').querySelector('.s').innerHTML =
+          '+' + fmtN(q) + ' ' + d.uni + ' de <span class="mono">' + d.label + '</span>. Nuevo stock: ' + nuevo + '. Costo actualizado a <span class="mono">$ ' + fmt(p) + '</span>.';
+        toast('Entrada de stock guardada.');
+      });
+
+      var btnCancelar = document.getElementById('btnCancelar');
+      btnCancelar.addEventListener('click', function () { window.location.href = 'inventario.html'; });
+
+      function toast(msg) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--footer-bg);color:var(--surface);padding:11px 18px;border-radius:12px;font-weight:600;font-size:13.5px;z-index:1080;box-shadow:var(--elev-2);';
+        document.body.appendChild(t);
+        setTimeout(function () { t.remove(); }, 1800);
+      }
+
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-module');
+          if (key === 'inventario') window.location.href = 'inventario.html';
+          else if (key === 'recetas') window.location.href = 'recetas.html';
+          else if (key === 'catalogo') window.location.href = 'catalogo.html';
+          else if (key === 'comandas') window.location.href = 'comandas.html';
+          else if (key === 'cocina') window.location.href = 'cocina.html';
+          else if (key === 'dashboard') window.location.href = 'dashboard.html';
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      actualizar();
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

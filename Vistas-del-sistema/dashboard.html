@@ -1,0 +1,646 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 2.1 — Dashboard / Panel Principal
+  Resumen del estado del negocio durante la jornada.
+  Basado en Bootstrap 5 con los tokens de brand de DESIGN.md.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard · La Esquina del Sabor</title>
+
+<!-- Bootstrap 5.3 CSS + Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── Estructura app: topbar + sidebar + contenido ─────────────── */
+  .app-shell { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    flex: 0 0 var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100dvh;
+  }
+  .sidebar-brand {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo {
+    width: 40px; height: 40px; flex: 0 0 auto;
+    border-radius: 12px;
+    background: var(--accent);
+    display: grid; place-items: center;
+    color: var(--surface);
+  }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--meta);
+    padding: 10px 12px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 0;
+    background: transparent;
+    color: var(--fg-2);
+    font-size: 14px; font-weight: 500;
+    text-align: left;
+    transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+  }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-standard); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active {
+    background: var(--accent-soft);
+    color: var(--fg);
+    border-left: 3px solid var(--accent);
+    padding-left: 9px;
+  }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .nav-item.active .badge-right { color: var(--accent-ghost); }
+
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar {
+    width: 38px; height: 38px; flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--accent-ghost);
+    color: var(--surface);
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 14px;
+  }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  /* Contenido */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    height: var(--topbar-h);
+    flex: 0 0 var(--topbar-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    padding: 0 20px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .topbar-date strong { color: var(--fg); font-weight: 600; }
+
+  .tasa-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono);
+    font-size: 13.5px; font-weight: 600;
+    color: var(--accent-ghost);
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent);
+    border-radius: var(--radius-md);
+    padding: 5px 12px;
+  }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .btn-tasa {
+    border: 0; background: transparent;
+    color: var(--muted);
+    width: 22px; height: 22px;
+    display: grid; place-items: center;
+    border-radius: 7px;
+    transition: color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
+  }
+  .btn-tasa:hover { color: var(--accent-strong); background: color-mix(in oklab, var(--accent) 10%, transparent); }
+  .btn-tasa:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .btn-tasa i { font-size: 12px; }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+  .work-status.closed { color: var(--info); background: var(--info-soft); }
+  .work-status.closed .dot { background: var(--info); }
+
+  .btn-jornada {
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--fg-2);
+    font-size: 13px; font-weight: 600;
+    border-radius: var(--radius-md);
+    padding: 6px 14px;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
+  }
+  .btn-jornada:hover { border-color: var(--fg-2); color: var(--fg); }
+  .btn-jornada:focus-visible { box-shadow: var(--focus-ring); }
+
+  .content { padding: 28px; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+
+  .btn-primary-brand {
+    background-color: var(--accent);
+    border: 0; color: var(--surface);
+    font-weight: 600; font-size: 14.5px;
+    border-radius: var(--radius-md);
+    padding: 11px 20px;
+    display: inline-flex; align-items: center; gap: 9px;
+    transition: background var(--motion-fast) var(--ease-standard), transform 0.05s ease;
+  }
+  .btn-primary-brand:hover { background-color: var(--accent-strong); color: var(--surface); }
+  .btn-primary-brand:active { transform: scale(.985); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); color: var(--surface); }
+
+  .btn-ghost-brand {
+    background: transparent; border: 1.5px solid var(--border-strong);
+    color: var(--fg-2); font-weight: 600; font-size: 14px;
+    border-radius: var(--radius-md); padding: 10px 16px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+  }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+
+  /* Tarjetas KPI */
+  .card-kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--elev-1);
+    padding: 20px;
+    height: 100%;
+    display: flex; flex-direction: column;
+  }
+  .kpi-label { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .kpi-label i { font-size: 14px; }
+  .kpi-value { font-family: var(--font-display); font-size: 34px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; margin-top: 14px; color: var(--fg); }
+  .kpi-value .unit { font-size: 15px; color: var(--muted); font-weight: 500; letter-spacing: 0; }
+  .kpi-meta { font-size: 12.5px; color: var(--muted); margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+  .kpi-meta .kpi-bs { font-family: var(--font-mono); color: var(--muted); }
+
+  .card-kpi.accent {
+    border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+    box-shadow: var(--elev-2);
+  }
+  .card-kpi.accent .kpi-label { color: var(--accent-ghost); }
+  .card-kpi.accent .kpi-value { color: var(--accent-strong); }
+
+  .trend-up { color: var(--success); }
+  .trend-down { color: var(--danger); }
+
+  /* Comandas activas */
+  .panel-comandas {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--elev-1);
+    overflow: hidden;
+  }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .panel-title { font-size: 16px; font-weight: 700; letter-spacing: -0.005em; margin: 0; color: var(--fg); }
+  .panel-title .count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 6px; }
+  .panel-link { font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); }
+  .panel-link:hover { color: var(--accent-strong); text-decoration: underline; }
+  .panel-link:focus-visible { box-shadow: var(--focus-ring); border-radius: 6px; }
+
+  .comanda-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background var(--motion-fast) var(--ease-standard);
+  }
+  .comanda-row:last-child { border-bottom: 0; }
+  .comanda-row:hover { background: var(--surface-sunken); }
+  .comanda-num {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 600;
+    letter-spacing: -0.01em;
+    min-width: 66px;
+    color: var(--fg);
+  }
+  .comanda-info { flex: 1; min-width: 0; }
+  .comanda-cliente { font-size: 14px; font-weight: 600; line-height: 1.2; }
+  .comanda-cliente .glyph { color: var(--muted); font-weight: 400; }
+  .comanda-meta { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+  .comanda-meta .tipo { font-weight: 600; }
+  .comanda-total { text-align: right; flex: 0 0 auto; }
+  .comanda-total .usd { font-family: var(--font-display); font-size: 18px; font-weight: 600; line-height: 1.1; color: var(--fg); }
+  .comanda-total .bs { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+  .badge-estado {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    border-radius: 999px; padding: 5px 11px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .badge-estado .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .badge-estado.montar { background: var(--accent-soft); color: var(--accent-ghost); }
+  .badge-estado.montar .dot { background: var(--accent); }
+  .badge-estado.entrega { background: var(--warn-soft); color: var(--warn); }
+  .badge-estado.entrega .dot { background: var(--warn); }
+  .badge-estado.cobrar { background: var(--info-soft); color: var(--info); }
+  .badge-estado.cobrar .dot { background: var(--info); }
+
+  .btn-row-open {
+    border: 0; background: transparent;
+    color: var(--muted);
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border-radius: 10px;
+    transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+  }
+  .btn-row-open:hover { background: var(--accent-soft); color: var(--accent-ghost); }
+  .btn-row-open:focus-visible { box-shadow: var(--focus-ring); }
+
+  /* Tasa destacada panel lateral */
+  .panel-tasa { background: var(--footer-bg); color: var(--bg); border-radius: var(--radius-lg); padding: 22px; }
+  .panel-tasa-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: color-mix(in oklab, var(--bg) 55%, transparent); }
+  .panel-tasa-value { font-family: var(--font-mono); font-size: 30px; font-weight: 600; color: var(--bg); margin-top: 10px; letter-spacing: -0.01em; }
+  .panel-tasa-value span { font-size: 15px; color: color-mix(in oklab, var(--bg) 60%, transparent); }
+  .panel-tasa-update { margin-top: 16px; }
+
+  .modal-surface { background: var(--surface); color: var(--fg); border-radius: var(--radius-lg); }
+  .modal-header-brand, .modal-footer-brand { border-color: var(--border); }
+  .modal-footer-brand { padding: 14px 20px; }
+
+  @media (max-width: 991.98px) {
+    .sidebar { display: none; }
+    .content { padding: 20px; }
+    .topbar { padding: 0 14px; }
+    .topbar-date span.d-md { display: none; }
+    .comanda-row { flex-wrap: wrap; gap: 10px; }
+    .comanda-total { text-align: left; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- Menú lateral -->
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item active" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos<span class="badge-right">3</span></button>
+
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Contenido principal -->
+    <div class="main">
+
+      <!-- Barra superior -->
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+
+        <div class="topbar-right">
+          <span class="tasa-chip" id="tasaChip" data-od-id="tasa-bcv">
+            <span class="tasa-label">Tasa BCV</span>
+            <span id="tasaValue">Bs 42,50 / USD</span>
+            <button type="button" class="btn-tasa" id="btnEditTasa" aria-label="Actualizar tasa BCV" data-bs-toggle="tooltip" title="Actualizar tasa BCV"><i class="bi bi-arrow-clockwise"></i></button>
+          </span>
+          <span class="work-status open" id="workStatus"><span class="dot"></span><span id="workStatusText">Jornada abierta</span></span>
+          <button type="button" class="btn-jornada" id="btnJornada" data-od-id="btn-jornada"><i class="bi bi-power"></i><span id="btnJornadaText">Cerrar jornada</span></button>
+        </div>
+      </header>
+
+      <!-- Contenido -->
+      <main class="content" data-od-id="content">
+
+        <div class="page-head">
+          <div>
+            <p class="page-eyebrow">Panel del día · Vista general</p>
+            <h1 class="page-title">Resumen de la jornada</h1>
+            <p class="page-sub">Estado actual del negocio y comandas activas en tiempo real.</p>
+          </div>
+          <button type="button" class="btn btn-primary-brand" id="btnNuevaComanda" data-od-id="btn-nueva-comanda">
+            <i class="bi bi-plus-lg"></i> Nueva comanda
+          </button>
+        </div>
+
+        <!-- Tarjetas KPI -->
+        <div class="row g-3 mb-4" data-od-id="kpi-row">
+          <div class="col-6 col-lg-3">
+            <div class="card-kpi accent">
+              <div class="kpi-label"><i class="bi bi-bank"></i> Ventas del día</div>
+              <div class="kpi-value">$ 148,75 <span class="unit">USD</span></div>
+              <div class="kpi-meta"><span class="kpi-bs">Bs 6.321,88</span> <span class="trend-up"><i class="bi bi-arrow-up-right"></i> +12%</span></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card-kpi">
+              <div class="kpi-label"><i class="bi bi-receipt"></i> Comandas activas</div>
+              <div class="kpi-value">7</div>
+              <div class="kpi-meta">4 en preparación · 2 entrega · 1 por cobrar</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card-kpi">
+              <div class="kpi-label"><i class="bi bi-people"></i> Clientes atendidos</div>
+              <div class="kpi-value">63</div>
+              <div class="kpi-meta"><span class="trend-up"><i class="bi bi-arrow-up-right"></i> +8%</span> vs ayer</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card-kpi">
+              <div class="kpi-label"><i class="bi bi-cash-stack"></i> Créditos pendientes</div>
+              <div class="kpi-value">3</div>
+              <div class="kpi-meta"><span class="kpi-bs">Bs 245,60</span> · por cobrar</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Comandas activas -->
+          <div class="col-12 col-xl-8">
+            <div class="panel-comandas" data-od-id="panel-comandas">
+              <div class="panel-head">
+                <h2 class="panel-title">Comandas activas <span class="count" id="comandaCount">7</span></h2>
+                <a href="#" class="panel-link" data-module-link="comandas">Ver todas →</a>
+              </div>
+
+              <div class="comanda-row">
+                <span class="comanda-num">014</span>
+                <div class="comanda-info">
+                  <div class="comanda-cliente">Mariana Ríos <span class="glyph">· Mesa 3</span></div>
+                  <div class="comanda-meta">4 productos · <span class="tipo" style="color:var(--accent-ghost);">Comer aquí</span></div>
+                </div>
+                <span class="badge-estado montar"><span class="dot"></span>Montar</span>
+                <div class="comanda-total"><div class="usd">$ 24,50</div><div class="bs">Bs 1.041,25</div></div>
+                <button type="button" class="btn-row-open" aria-label="Abrir comanda 014"><i class="bi bi-chevron-right"></i></button>
+              </div>
+
+              <div class="comanda-row">
+                <span class="comanda-num">015</span>
+                <div class="comanda-info">
+                  <div class="comanda-cliente">Carlos Páez <span class="glyph">· Llevar</span></div>
+                  <div class="comanda-meta">2 productos · <span class="tipo" style="color:var(--accent-ghost);">Llevar</span></div>
+                </div>
+                <span class="badge-estado montar"><span class="dot"></span>Montar</span>
+                <div class="comanda-total"><div class="usd">$ 10,00</div><div class="bs">Bs 425,00</div></div>
+                <button type="button" class="btn-row-open" aria-label="Abrir comanda 015"><i class="bi bi-chevron-right"></i></button>
+              </div>
+
+              <div class="comanda-row">
+                <span class="comanda-num">016</span>
+                <div class="comanda-info">
+                  <div class="comanda-cliente">Delivery <span class="glyph">· 0412-555 1234</span></div>
+                  <div class="comanda-meta">3 productos · <span class="tipo" style="color:var(--warn);">Delivery</span></div>
+                </div>
+                <span class="badge-estado entrega"><span class="dot"></span>Entrega</span>
+                <div class="comanda-total"><div class="usd">$ 18,75</div><div class="bs">Bs 796,88</div></div>
+                <button type="button" class="btn-row-open" aria-label="Abrir comanda 016"><i class="bi bi-chevron-right"></i></button>
+              </div>
+
+              <div class="comanda-row">
+                <span class="comanda-num">017</span>
+                <div class="comanda-info">
+                  <div class="comanda-cliente">Andrés Silva <span class="glyph">· Mesa 7</span></div>
+                  <div class="comanda-meta">5 productos · <span class="tipo" style="color:var(--accent-ghost);">Comer aquí</span></div>
+                </div>
+                <span class="badge-estado entrega"><span class="dot"></span>Entrega</span>
+                <div class="comanda-total"><div class="usd">$ 31,00</div><div class="bs">Bs 1.317,50</div></div>
+                <button type="button" class="btn-row-open" aria-label="Abrir comanda 017"><i class="bi bi-chevron-right"></i></button>
+              </div>
+
+              <div class="comanda-row">
+                <span class="comanda-num">018</span>
+                <div class="comanda-info">
+                  <div class="comanda-cliente">Luis Torrealba <span class="glyph">· Llevar</span></div>
+                  <div class="comanda-meta">2 productos · <span class="tipo" style="color:var(--accent-ghost);">Llevar</span></div>
+                </div>
+                <span class="badge-estado montar"><span class="dot"></span>Montar</span>
+                <div class="comanda-total"><div class="usd">$ 9,50</div><div class="bs">Bs 403,75</div></div>
+                <button type="button" class="btn-row-open" aria-label="Abrir comanda 018"><i class="bi bi-chevron-right"></i></button>
+              </div>
+
+              <div class="comanda-row">
+                <span class="comanda-num">019</span>
+                <div class="comanda-info">
+                  <div class="comanda-cliente">María Contreras <span class="glyph">· Mesa 5</span></div>
+                  <div class="comanda-meta">1 producto · <span class="tipo" style="color:var(--accent-ghost);">Comer aquí</span></div>
+                </div>
+                <span class="badge-estado montar"><span class="dot"></span>Montar</span>
+                <div class="comanda-total"><div class="usd">$ 5,00</div><div class="bs">Bs 212,50</div></div>
+                <button type="button" class="btn-row-open" aria-label="Abrir comanda 019"><i class="bi bi-chevron-right"></i></button>
+              </div>
+
+              <div class="comanda-row">
+                <span class="comanda-num">020</span>
+                <div class="comanda-info">
+                  <div class="comanda-cliente">Pedro Maldonado <span class="glyph">· Delivery</span></div>
+                  <div class="comanda-meta">2 productos · <span class="tipo" style="color:var(--warn);">Delivery</span></div>
+                </div>
+                <span class="badge-estado cobrar"><span class="dot"></span>Cobrar</span>
+                <div class="comanda-total"><div class="usd">$ 14,00</div><div class="bs">Bs 595,00</div></div>
+                <button type="button" class="btn-row-open" aria-label="Abrir comanda 020"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lateral: tasa destacada -->
+          <div class="col-12 col-xl-4">
+            <div class="panel-tasa mb-4" data-od-id="panel-tasa">
+              <div class="panel-tasa-label">Tasa BCV del día</div>
+              <div class="panel-tasa-value" id="tasaBigValue">Bs 42,50 <span>/ 1 USD</span></div>
+              <div class="panel-tasa-update">
+                <button type="button" class="btn btn-ghost-brand" id="btnEditTasaBig" style="background:transparent;border-color:color-mix(in oklab, var(--bg) 25%, transparent);color:var(--bg);"><i class="bi bi-arrow-clockwise"></i> Actualizar tasa</button>
+              </div>
+            </div>
+
+            <div class="card-kpi mb-4">
+              <div class="kpi-label"><i class="bi bi-calendar-check"></i> Estado de jornada</div>
+              <div class="kpi-meta" style="font-size:14px;color:var(--fg-2);margin-top:12px;" id="jornadaDetalle">Apertura: 08:00 · Cierre pendiente. Caja inicial: Bs 200,00.</div>
+            </div>
+
+            <div class="card-kpi">
+              <div class="kpi-label"><i class="bi bi-lightning-charge"></i> Acceso rápido</div>
+              <div class="mt-3 d-flex flex-column gap-2">
+                <button type="button" class="btn btn-ghost-brand justify-content-start" data-module-link="comandas"><i class="bi bi-receipt"></i> Gestión de comandas</button>
+                <button type="button" class="btn btn-ghost-brand justify-content-start" data-module-link="cocina"><i class="bi bi-fire"></i> Panel de cocina</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <button class="nav-item active" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Modal: actualizar tasa BCV -->
+  <div class="modal fade" id="modalTasa" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content modal-surface">
+        <div class="modal-header modal-header-brand">
+          <h5 class="modal-title fs-6 fw-bold" id="modalTasaTitle">Actualizar tasa BCV</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <label for="nuevaTasa" class="form-label form-label-brand fw-semibold" style="font-size:13px;color:var(--fg-2);">Tasa del día (Bs por USD)</label>
+          <div class="input-group">
+            <span class="input-group-text" style="border:1.5px solid var(--border-strong);background:var(--surface);color:var(--muted);">Bs</span>
+            <input type="text" class="form-control" id="nuevaTasa" value="42,50" style="border:1.5px solid var(--border-strong);color:var(--fg);" aria-describedby="tasaHelp" />
+          </div>
+          <div id="tasaHelp" class="form-text" style="color:var(--muted);font-family:var(--font-mono);font-size:12px;">Se aplica de inmediato a precios y montos.</div>
+        </div>
+        <div class="modal-footer modal-footer-brand">
+          <button type="button" class="btn btn-ghost-brand" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary-brand" id="btnGuardarTasa">Guardar tasa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      // fecha de hoy
+      var today = new Date();
+      var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      document.getElementById('todayDate').textContent = today.getDate() + ' de ' +
+        ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][today.getMonth()] +
+        ' de ' + today.getFullYear();
+
+      // Navegación global (sidebar y accesos rápidos) manejada por assets/app.js
+      var btnNueva = document.getElementById('btnNuevaComanda');
+      if (btnNueva) {
+        btnNueva.addEventListener('click', function () { if (window.W && W.navegar) W.navegar('comandas'); });
+      }
+
+      // Abrir / cerrar jornada
+      var btnJornada = document.getElementById('btnJornada');
+      var workStatus = document.getElementById('workStatus');
+      var workStatusText = document.getElementById('workStatusText');
+      var btnJornadaText = document.getElementById('btnJornadaText');
+      var jornadaDetalle = document.getElementById('jornadaDetalle');
+      btnJornada.addEventListener('click', function () {
+        var isOpen = workStatusText.textContent === 'Jornada abierta';
+        if (isOpen) {
+          workStatus.className = 'work-status closed';
+          workStatusText.textContent = 'Jornada cerrada';
+          btnJornadaText.textContent = 'Abrir jornada';
+          jornadaDetalle.textContent = 'Jornada cerrada. Resumen generado y contador de comandas reiniciado.';
+        } else {
+          workStatus.className = 'work-status open';
+          workStatusText.textContent = 'Jornada abierta';
+          btnJornadaText.textContent = 'Cerrar jornada';
+          jornadaDetalle.textContent = 'Apertura: 08:00 · Cierre pendiente. Caja inicial: Bs 200,00.';
+        }
+      });
+
+      // Actualizar tasa BCV
+      var tasaValue = document.getElementById('tasaValue');
+      var tasaBigValue = document.getElementById('tasaBigValue');
+      var tasaModal = new bootstrap.Modal(document.getElementById('modalTasa'));
+      function openTasa() { tasaModal.show(); }
+      document.getElementById('btnEditTasa').addEventListener('click', openTasa);
+      document.getElementById('btnEditTasaBig').addEventListener('click', openTasa);
+      document.getElementById('btnGuardarTasa').addEventListener('click', function () {
+        var v = document.getElementById('nuevaTasa').value.trim() || '42,50';
+        tasaValue.textContent = 'Bs ' + v + ' / USD';
+        tasaBigValue.innerHTML = 'Bs ' + v + ' <span>/ 1 USD</span>';
+        tasaModal.hide();
+      });
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,575 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 3.3 — Cocina (Kanban)
+  Columnas por estado (horizontal): Montar → Entrega → Cobrar.
+  Tarjetas de comanda apiladas, la unidad más importante de la cocina.
+  Basado en Bootstrap 5 con los tokens de brand de DESIGN.md.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cocina · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w); flex: 0 0 var(--sidebar-w);
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh; height: 100dvh;
+  }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 0;
+    background: transparent; color: var(--fg-2);
+    font-size: 14px; font-weight: 500; text-align: left;
+    transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+  }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .nav-item.active .badge-right { color: var(--accent-ghost); }
+
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    height: var(--topbar-h); flex: 0 0 var(--topbar-h);
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 0 20px; position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+
+  .tasa-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: 13.5px; font-weight: 600;
+    color: var(--accent-ghost); background: var(--accent-soft);
+    border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent);
+    border-radius: var(--radius-md); padding: 5px 12px;
+  }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 40px; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+
+  .btn-ghost-brand {
+    background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2);
+    font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out);
+  }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+
+  /* ── Kanban ────────────────────────────────────────────────── */
+  .kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+  .kanban-col { min-width: 0; }
+  .kanban-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; margin-bottom: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); box-shadow: var(--elev-1);
+  }
+  .kanban-head .state-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .kanban-head.montar .state-dot { background: var(--accent); }
+  .kanban-head.entrega .state-dot { background: var(--warn); }
+  .kanban-head.cobrar .state-dot { background: var(--info); }
+  .kanban-title { font-size: 14px; font-weight: 700; letter-spacing: -0.005em; color: var(--fg); }
+  .kanban-count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-left: auto; }
+  .kanban-list { display: flex; flex-direction: column; gap: 12px; }
+
+  /* Tarjeta de comanda — la unidad más importante de la cocina */
+  .orden-card {
+    position: relative;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-md); box-shadow: var(--elev-1);
+    padding: 16px 16px 14px;
+    border-left: 3px solid var(--muted);
+    display: flex; flex-direction: column; gap: 12px;
+    transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out);
+  }
+  .orden-card.montar { border-left-color: var(--accent); }
+  .orden-card.entrega { border-left-color: var(--warn); }
+  .orden-card.cobrar { border-left-color: var(--info); }
+  .orden-card:hover { box-shadow: var(--elev-2); }
+
+  .orden-top { display: flex; align-items: baseline; gap: 10px; }
+  .orden-num { font-family: var(--font-display); font-size: 30px; font-weight: 600; letter-spacing: -0.02em; color: var(--fg); line-height: 1; }
+  .orden-cliente { font-size: 14px; font-weight: 600; color: var(--fg-2); }
+  .orden-tipo { font-size: 12px; color: var(--muted); }
+  .orden-tiempo { margin-left: auto; font-family: var(--font-mono); font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+  .orden-prods { display: flex; flex-direction: column; gap: 6px; border-left: 2px solid var(--border); padding-left: 10px; }
+  .orden-prod { display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--fg-2); }
+  .orden-prod .qty { font-family: var(--font-display); font-weight: 600; color: var(--accent-strong); min-width: 22px; }
+  .orden-prod .nombre { font-weight: 500; }
+  .badge-tipo {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    border-radius: 999px; padding: 2px 8px; white-space: nowrap; margin-left: auto;
+  }
+  .badge-tipo.casa { background: var(--accent-soft); color: var(--accent-ghost); }
+  .badge-tipo.llevar { background: var(--warn-soft); color: var(--warn); }
+  .badge-tipo.delivery { background: var(--info-soft); color: var(--info); }
+
+  .orden-phone {
+    font-family: var(--font-mono); font-size: 12.5px;
+    color: var(--info); background: var(--info-soft);
+    border-radius: 8px; padding: 6px 10px;
+    display: inline-flex; align-items: center; gap: 7px;
+    align-self: flex-start;
+  }
+  .orden-phone a { display: inline-flex; align-items: center; gap: 6px; }
+  .orden-phone a:hover { text-decoration: underline; }
+
+  .orden-nota {
+    font-size: 12px; color: var(--warn); background: var(--warn-soft);
+    border-radius: 8px; padding: 6px 10px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  .orden-foot { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .orden-foot .total { font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+  .orden-foot .bs { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: 4px; }
+  .orden-actions { margin-left: auto; display: inline-flex; gap: 4px; }
+  .btn-move {
+    border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--fg-2);
+    height: 30px; padding: 0 10px; border-radius: 8px;
+    font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;
+    transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out);
+  }
+  .btn-move:hover:not(:disabled) { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-move:focus-visible { box-shadow: var(--focus-ring); }
+  .btn-move:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-move.open { border-color: var(--accent); color: var(--accent-ghost); }
+  .btn-move.open:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
+
+  .kanban-col.montar-col .kanban-list .orden-card:first-child { animation: entrar 220ms var(--ease-out); }
+
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .empty-col { color: var(--meta); font-size: 13px; text-align: center; padding: 24px 0; font-style: italic; }
+
+  @media (max-width: 991.98px) {
+    .sidebar { display: none; }
+    .content { padding: 20px; }
+    .topbar { padding: 0 16px; }
+    .topbar-date span.d-md { display: none; }
+  }
+
+  @media (max-width: 767.98px) {
+    .kanban { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item active" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos<span class="badge-right">3</span></button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip" data-od-id="tasa-bcv">
+            <span class="tasa-label">Tasa BCV</span>
+            <span>Bs 42,50 / USD</span>
+          </span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <div class="page-head">
+          <div>
+            <p class="page-eyebrow">Módulo cocina · Panel kanban</p>
+            <h1 class="page-title">Cocina</h1>
+            <p class="page-sub">Etapas de cada comanda en tiempo real: Montar → Entrega → Cobrar.</p>
+          </div>
+          <button type="button" class="btn btn-ghost-brand" id="btnNuevaComanda"><i class="bi bi-plus-lg"></i> Nueva comanda</button>
+        </div>
+
+        <div class="kanban" data-od-id="kanban">
+
+          <!-- Montar -->
+          <div class="kanban-col montar-col" data-estado="montar">
+            <div class="kanban-head montar">
+              <span class="state-dot" aria-hidden="true"></span>
+              <span class="kanban-title">Montar</span>
+              <span class="kanban-count tabular">4</span>
+            </div>
+            <div class="kanban-list">
+
+              <div class="orden-card montar" data-ord="014">
+                <div class="orden-top">
+                  <span class="orden-num">014</span>
+                  <div>
+                    <div class="orden-cliente">Mariana Ríos</div>
+                    <div class="orden-tipo">Mesa 3</div>
+                  </div>
+                  <span class="orden-tiempo" data-min="6">6 min</span>
+                </div>
+                <div class="orden-prods">
+                  <div class="orden-prod"><span class="qty tabular">2×</span><span class="nombre">Hamburguesa Esquina</span><span class="badge-tipo casa">Casa</span></div>
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Jugo natural</span><span class="badge-tipo casa">Casa</span></div>
+                  <div class="orden-nota"><i class="bi bi-exclamation-circle"></i> Sin cebolla en las dos</div>
+                </div>
+                <div class="orden-foot">
+                  <span class="total tabular">$ 14,50</span><span class="bs">Bs 616,25</span>
+                  <div class="orden-actions">
+                    <button type="button" class="btn-move" data-move="reimprimir" aria-label="Reimprimir comanda 014"><i class="bi bi-printer"></i></button>
+                    <button type="button" class="btn-move open" data-move="estado" data-dir="1" aria-label="Mover comanda 014 a Entrega"><i class="bi bi-arrow-right"></i> Entregar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="orden-card montar" data-ord="015">
+                <div class="orden-top">
+                  <span class="orden-num">015</span>
+                  <div>
+                    <div class="orden-cliente">Carlos Páez</div>
+                    <div class="orden-tipo">Llevar</div>
+                  </div>
+                  <span class="orden-tiempo" data-min="3">3 min</span>
+                </div>
+                <div class="orden-prods">
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Perro caliente</span><span class="badge-tipo llevar">Llevar</span></div>
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Refresco 500ml</span><span class="badge-tipo llevar">Llevar</span></div>
+                </div>
+                <div class="orden-foot">
+                  <span class="total tabular">$ 5,50</span><span class="bs">Bs 233,75</span>
+                  <div class="orden-actions">
+                    <button type="button" class="btn-move" data-move="reimprimir" aria-label="Reimprimir comanda 015"><i class="bi bi-printer"></i></button>
+                    <button type="button" class="btn-move open" data-move="estado" data-dir="1" aria-label="Mover comanda 015 a Entrega"><i class="bi bi-arrow-right"></i> Entregar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="orden-card montar" data-ord="018">
+                <div class="orden-top">
+                  <span class="orden-num">018</span>
+                  <div>
+                    <div class="orden-cliente">Luis Torrealba</div>
+                    <div class="orden-tipo">Llevar</div>
+                  </div>
+                  <span class="orden-tiempo" data-min="2">2 min</span>
+                </div>
+                <div class="orden-prods">
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Arepa dominó</span><span class="badge-tipo llevar">Llevar</span></div>
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Café con leche</span><span class="badge-tipo llevar">Llevar</span></div>
+                </div>
+                <div class="orden-foot">
+                  <span class="total tabular">$ 6,20</span><span class="bs">Bs 263,50</span>
+                  <div class="orden-actions">
+                    <button type="button" class="btn-move" data-move="reimprimir" aria-label="Reimprimir comanda 017"><i class="bi bi-printer"></i></button>
+                    <button type="button" class="btn-move open" data-move="estado" data-dir="1" aria-label="Mover comanda 017 a Cobrar"><i class="bi bi-arrow-right"></i> Cobrar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="orden-card montar" data-ord="019">
+                <div class="orden-top">
+                  <span class="orden-num">019</span>
+                  <div>
+                    <div class="orden-cliente">María Contreras</div>
+                    <div class="orden-tipo">Mesa 5</div>
+                  </div>
+                  <span class="orden-tiempo" data-min="1">1 min</span>
+                </div>
+                <div class="orden-prods">
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Ensalada César</span><span class="badge-tipo casa">Casa</span></div>
+                  <div class="orden-nota"><i class="bi bi-exclamation-circle"></i> Aderezo aparte</div>
+                </div>
+                <div class="orden-foot">
+                  <span class="total tabular">$ 6,00</span><span class="bs">Bs 255,00</span>
+                  <div class="orden-actions">
+                    <button type="button" class="btn-move" data-move="reimprimir" aria-label="Reimprimir comanda 018"><i class="bi bi-printer"></i></button>
+                    <button type="button" class="btn-move open" data-move="estado" data-dir="1" aria-label="Mover comanda 018 a Entrega"><i class="bi bi-arrow-right"></i> Entregar</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Entrega -->
+          <div class="kanban-col entrega-col" data-estado="entrega">
+            <div class="kanban-head entrega">
+              <span class="state-dot" aria-hidden="true"></span>
+              <span class="kanban-title">Entrega</span>
+              <span class="kanban-count tabular">2</span>
+            </div>
+            <div class="kanban-list">
+
+              <div class="orden-card entrega" data-ord="016">
+                <div class="orden-top">
+                  <span class="orden-num">016</span>
+                  <div>
+                    <div class="orden-cliente">Delivery · 0412-555 1234</div>
+                    <div class="orden-tipo">Delivery</div>
+                  </div>
+                  <span class="orden-tiempo" data-min="9">9 min</span>
+                </div>
+                <div class="orden-prods">
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Combo Esquina</span><span class="badge-tipo delivery">Delivery</span></div>
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Malteada</span><span class="badge-tipo delivery">Delivery</span></div>
+                </div>
+                <span class="orden-phone"><i class="bi bi-telephone"></i> <a href="tel:04125551234">0412-555 1234</a></span>
+                <div class="orden-foot">
+                  <span class="total tabular">$ 14,00</span><span class="bs">Bs 595,00</span>
+                  <div class="orden-actions">
+                    <button type="button" class="btn-move" data-move="reimprimir" aria-label="Reimprimir comanda 016"><i class="bi bi-printer"></i></button>
+                    <button type="button" class="btn-move" data-move="estado" data-dir="-1" aria-label="Mover comanda 016 a Montar"><i class="bi bi-arrow-left"></i></button>
+                    <button type="button" class="btn-move open" data-move="estado" data-dir="1" aria-label="Mover comanda 016 a Cobrar"><i class="bi bi-arrow-right"></i> Cobrar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="orden-card entrega" data-ord="017">
+                <div class="orden-top">
+                  <span class="orden-num">017</span>
+                  <div>
+                    <div class="orden-cliente">Andrés Silva</div>
+                    <div class="orden-tipo">Mesa 7</div>
+                  </div>
+                  <span class="orden-tiempo" data-min="7">7 min</span>
+                </div>
+                <div class="orden-prods">
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Pepito de res</span><span class="badge-tipo casa">Casa</span></div>
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Papas a la francesa</span><span class="badge-tipo casa">Casa</span></div>
+                  <div class="orden-prod"><span class="qty tabular">2×</span><span class="nombre">Refresco 500ml</span><span class="badge-tipo casa">Casa</span></div>
+                  <div class="orden-nota"><i class="bi bi-exclamation-circle"></i> Papas extra crujientes</div>
+                </div>
+                <div class="orden-foot">
+                  <span class="total tabular">$ 13,90</span><span class="bs">Bs 590,75</span>
+                  <div class="orden-actions">
+                    <button type="button" class="btn-move" data-move="reimprimir" aria-label="Reimprimir comanda 019"><i class="bi bi-printer"></i></button>
+                    <button type="button" class="btn-move open" data-move="estado" data-dir="1" aria-label="Mover comanda 019 a Entrega"><i class="bi bi-arrow-right"></i> Entregar</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Cobrar -->
+          <div class="kanban-col cobrar-col" data-estado="cobrar">
+            <div class="kanban-head cobrar">
+              <span class="state-dot" aria-hidden="true"></span>
+              <span class="kanban-title">Cobrar</span>
+              <span class="kanban-count tabular">1</span>
+            </div>
+            <div class="kanban-list">
+
+              <div class="orden-card cobrar" data-ord="020">
+                <div class="orden-top">
+                  <span class="orden-num">020</span>
+                  <div>
+                    <div class="orden-cliente">Pedro Maldonado</div>
+                    <div class="orden-tipo">Delivery</div>
+                  </div>
+                  <span class="orden-tiempo" data-min="4">4 min</span>
+                </div>
+                <div class="orden-prods">
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Combo Peregrino</span><span class="badge-tipo delivery">Delivery</span></div>
+                  <div class="orden-prod"><span class="qty tabular">1×</span><span class="nombre">Agua 500ml</span><span class="badge-tipo delivery">Delivery</span></div>
+                </div>
+                <span class="orden-phone"><i class="bi bi-telephone"></i> <a href="tel:04263340129">0426-334 0129</a></span>
+                <div class="orden-foot">
+                  <span class="total tabular">$ 17,50</span><span class="bs">Bs 743,75</span>
+                  <div class="orden-actions">
+                    <button type="button" class="btn-move" data-move="reimprimir" aria-label="Reimprimir comanda 020"><i class="bi bi-printer"></i></button>
+                    <button type="button" class="btn-move" data-move="estado" data-dir="-1" aria-label="Mover comanda 020 a Entrega"><i class="bi bi-arrow-left"></i></button>
+                    <button type="button" class="btn-move open" data-move="abrir" aria-label="Cobrar comanda 020"><i class="bi bi-cash-coin"></i> Cobrar</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item active" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var today = new Date();
+      var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      document.getElementById('todayDate').textContent = today.getDate() + ' de ' +
+        ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][today.getMonth()] +
+        ' de ' + today.getFullYear();
+
+      var ORDEN = ['montar', 'entrega', 'cobrar'];
+
+      function colEl(estado) {
+        return document.querySelector('.kanban-col[data-estado="' + estado + '"] .kanban-list');
+      }
+      function moveEstado(card, dir) {
+        var estado = card.parentElement.parentElement.getAttribute('data-estado');
+        var idx = ORDEN.indexOf(estado);
+        var n = idx + dir;
+        if (n < 0 || n >= ORDEN.length) return;
+        var next = ORDEN[n];
+        card.classList.remove('montar', 'entrega', 'cobrar');
+        card.classList.add(next);
+        colEl(next).appendChild(card);
+        refresh();
+        if (next === 'montar') {
+          card.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220, easing: 'cubic-bezier(0,0,0.2,1)' });
+        }
+      }
+      function refresh() {
+        ORDEN.forEach(function (s) {
+          var list = document.querySelector('.kanban-col[data-estado="' + s + '"] .kanban-list');
+          var count = list.querySelectorAll('.orden-card').length;
+          var el = document.querySelector('.kanban-col[data-estado="' + s + '"] .kanban-count');
+          if (el) el.textContent = count;
+          if (count === 0) list.innerHTML = '<div class="empty-col">Sin comandas en esta etapa.</div>';
+          else list.querySelector('.empty-col') && list.querySelector('.empty-col').remove();
+        });
+      }
+
+      document.querySelectorAll('.btn-move').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var card = this.closest('.orden-card');
+          if (this.getAttribute('data-move') === 'estado') {
+            moveEstado(card, Number(this.getAttribute('data-dir')));
+          } else if (this.getAttribute('data-move') === 'reimprimir') {
+            window.print();
+          }
+        });
+      });
+
+      document.getElementById('btnNuevaComanda').addEventListener('click', function () {
+        window.location.href = 'crear-comanda.html';
+      });
+
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-module');
+          if (key === 'comandas') window.location.href = 'comandas.html';
+          else if (key === 'dashboard') window.location.href = 'dashboard.html';
+        });
+      });
+
+      refresh();
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

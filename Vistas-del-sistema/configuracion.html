@@ -1,0 +1,414 @@
+﻿<!doctype html>
+<!--
+  La Esquina del Sabor · Vista 13.1 — Configuración General
+  Parámetros del sistema: tasa BCV, precios, impresora térmica y datos del negocio.
+  Vista de configuración (DESIGN.md §7). Shell común. Solo Administrador.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Configuración · La Esquina del Sabor</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/app.css" />
+
+<style>
+  
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+  .sidebar-logo i { font-size: 19px; }
+  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .sidebar-name span { color: var(--accent); }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
+  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
+  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
+  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
+  .nav-item:hover i { color: var(--fg-2); }
+  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
+  .nav-item.active i { color: var(--accent-ghost); }
+  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
+  .user-chip { display: flex; align-items: center; gap: 11px; }
+  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
+  .user-role { font-size: 12.5px; color: var(--muted); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
+  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
+  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .work-status.open { color: var(--success); background: var(--success-soft); }
+  .work-status.open .dot { background: var(--success); }
+
+  .content { padding: 24px; padding-bottom: 48px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
+  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
+  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
+  .btn-primary-brand:hover { background: var(--accent-strong); }
+  .btn-primary-brand:active { transform: scale(.98); }
+  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
+  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
+
+  .config-grid { display: grid; grid-template-columns: minmax(0,1fr) 360px; gap: 20px; align-items: start; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .panel-title { font-size: 16px; font-weight: 700; letter-spacing: -0.005em; margin: 0; color: var(--fg); display: flex; align-items: center; gap: 9px; }
+  .panel-title i { color: var(--accent-ghost); }
+  .panel-body { padding: 20px; }
+
+  .form-label-brand { font-size: 13px; font-weight: 600; color: var(--fg-2); margin-bottom: 6px; display: block; }
+  .form-label-brand .req { color: var(--danger); }
+  .input-brand, .select-brand, .textarea-brand { width: 100%; background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 10px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
+  .input-brand:focus, .select-brand:focus, .textarea-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .help-text { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+
+  .tasa-actual { display: flex; align-items: center; gap: 14px; background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px; }
+  .tasa-actual .ta-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .tasa-actual .ta-value { font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--accent-strong); font-variant-numeric: tabular-nums; }
+  .tasa-actual .ta-value small { font-size: 14px; color: var(--muted); font-weight: 500; }
+
+  .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex: 0 0 auto; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border-strong); border-radius: 999px; transition: background var(--motion-fast) var(--ease-out); }
+  .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: var(--surface); border-radius: 50%; transition: transform var(--motion-fast) var(--ease-out); box-shadow: 0 1px 2px rgba(32,27,22,.2); }
+  .switch input:checked + .slider { background: var(--accent); }
+  .switch input:checked + .slider:before { transform: translateX(20px); }
+  .switch input:focus-visible + .slider { box-shadow: var(--focus-ring); }
+  .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; }
+  .switch-row .sw-name { font-size: 14px; color: var(--fg-2); }
+  .switch-row .sw-desc { font-size: 12px; color: var(--meta); }
+
+  /* Preview ticket impresora */
+  .ticket-preview { border: 1px dashed var(--border-strong); border-radius: var(--radius-md); padding: 14px; font-family: var(--font-mono); font-size: 11.5px; }
+  .ticket-preview .tp-header { text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+  .ticket-preview .tp-sep { border-top: 1.5px dashed var(--border-strong); margin: 6px 0; }
+  .ticket-preview .tp-row { display: flex; justify-content: space-between; gap: 8px; }
+  .ticket-preview .tp-meta { color: var(--muted); }
+  .is-printing { border-color: var(--accent); }
+
+  .toast-slot { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 1080; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .mini-toast { background: var(--footer-bg); color: var(--surface); font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 12px; box-shadow: var(--elev-2); display: flex; align-items: center; gap: 9px; animation: toastIn var(--motion-fast) var(--ease-out); }
+  .mini-toast.ok { background: var(--success); }
+  .mini-toast i { font-size: 16px; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 1199.98px) { .config-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar" data-od-id="sidebar">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
+        <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
+      </div>
+      <nav class="sidebar-nav" data-od-id="sidebar-nav">
+        <div class="nav-section-label">Operación</div>
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <div class="nav-section-label">Gestión</div>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <div class="nav-section-label">Sistema</div>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item active" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="user-chip">
+          <span class="user-avatar">GR</span>
+          <div>
+            <div class="user-name">Gerente</div>
+            <div class="user-role">Administrador</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar" data-od-id="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
+          <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
+        </div>
+        <div class="topbar-right d-flex align-items-center gap-2">
+          <span class="tasa-chip"><span class="tasa-label">Tasa BCV</span><span>Bs 42,50 / USD</span></span>
+          <span class="work-status open"><span class="dot"></span><span>Jornada abierta</span></span>
+        </div>
+      </header>
+
+      <main class="content" data-od-id="content">
+        <div class="page-head">
+          <div>
+            <p class="page-eyebrow">Sistema · Parámetros</p>
+            <h1 class="page-title">Configuración</h1>
+            <p class="page-sub">Tasa BCV, precios, impresora y datos del negocio.</p>
+          </div>
+          <div class="head-actions">
+            <button type="button" class="btn-primary-brand" id="btnGuardarTodo"><i class="bi bi-check-lg"></i> Guardar cambios</button>
+          </div>
+        </div>
+
+        <div class="config-grid">
+
+          <!-- Columna principal -->
+          <div item>
+
+            <!-- Tasa BCV -->
+            <div class="panel mb-4" data-od-id="panel-tasa">
+              <div class="panel-head"><h2 class="panel-title"><i class="bi bi-currency-dollar"></i> Tasa de cambio BCV</h2></div>
+              <div class="panel-body">
+                <div class="tasa-actual">
+                  <div>
+                    <div class="ta-label">Tasa vigente</div>
+                    <div class="ta-value" id="tasaActual">Bs 42,50 <small>/ 1 USD</small></div>
+                  </div>
+                </div>
+                <label class="form-label-brand" for="cfgTasa">Nueva tasa del día (Bs por USD) <span class="req">*</span></label>
+                <input type="text" class="input-brand" id="cfgTasa" value="42,50" inputmode="decimal" placeholder="0,00" />
+                <div class="help-text">Se aplica de inmediato a precios y montos en toda la operación.</div>
+              </div>
+            </div>
+
+            <!-- Precios -->
+            <div class="panel mb-4" data-od-id="panel-precios">
+              <div class="panel-head"><h2 class="panel-title"><i class="bi bi-tags"></i> Configuración de precios</h2></div>
+              <div class="panel-body">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label-brand" for="cfgMargen">Margen de ganancia por defecto (%)</label>
+                    <input type="number" class="input-brand" id="cfgMargen" value="35" min="0" max="200" />
+                    <div class="help-text">Aplica a productos con precio por margen de receta.</div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label-brand" for="cfgRedondeo">Redondeo de precios (USD)</label>
+                    <select class="select-brand" id="cfgRedondeo">
+                      <option value="0.05">0.05</option>
+                      <option value="0.10" selected>0.10</option>
+                      <option value="0.25">0.25</option>
+                      <option value="0.50">0.50</option>
+                      <option value="1.00">1.00</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="switch-row" style="border-top:1px solid var(--border);margin-top:8px;">
+                  <div><div class="sw-name">Mostrar precios en Bs en comanda</div><div class="sw-desc">Alterna la visualización del equivalente en bolívares</div></div>
+                  <label class="switch"><input type="checkbox" id="cfgMostrarBs" checked><span class="slider"></span></label>
+                </div>
+                <div class="switch-row" style="border-top:1px solid var(--border);">
+                  <div><div class="sw-name">Recalcular precios automáticamente</div><div class="sw-desc">Al cambiar la tasa BCV, reindexar precios por margen</div></div>
+                  <label class="switch"><input type="checkbox" id="cfgAutoPrecio" checked><span class="slider"></span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Datos del negocio -->
+            <div class="panel" data-od-id="panel-negocio">
+              <div class="panel-head"><h2 class="panel-title"><i class="bi bi-shop"></i> Datos del negocio</h2></div>
+              <div class="panel-body">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label-brand" for="cfgNombre">Nombre del negocio <span class="req">*</span></label>
+                    <input type="text" class="input-brand" id="cfgNombre" value="La Esquina del Sabor" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label-brand" for="cfgTelefono">Teléfono</label>
+                    <input type="tel" class="input-brand" id="cfgTelefono" value="0412-555 1234" />
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label-brand" for="cfgDireccion">Dirección</label>
+                    <input type="text" class="input-brand" id="cfgDireccion" value="Municipio Aristides Bastidas, Yaracuy, Venezuela" />
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label-brand" for="cfgEslogan">Eslogan</label>
+                    <input type="text" class="input-brand" id="cfgEslogan" value="Calor, orden y sabor: la cocina que nunca se detiene." />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Columna lateral: impresora-->
+          <div item>
+            <div class="panel side-panel" data-od-id="panel-impresora">
+              <div class="panel-head"><h2 class="panel-title"><i class="bi bi-printer"></i> Impresora térmica</h2></div>
+              <div class="panel-body">
+                <label class="form-label-brand" for="cfgImpresora">Dispositivo</label>
+                <select class="select-brand" id="cfgImpresora">
+                  <option value="termica-80" selected>Impresora térmica 80mm (cocina)</option>
+                  <option value="termica-58">Impresora térmica 58mm</option>
+                </select>
+
+                <label class="form-label-brand" for="cfgCopias">Copias por comanda</label>
+                <select class="select-brand" id="cfgCopias">
+                  <option value="1">1 copia (cocina)</option>
+                  <option value="2" selected>2 copias (cocina + caja)</option>
+                  <option value="3">3 copias</option>
+                </select>
+
+                <div class="switch-row" style="border-top:1px solid var(--border);margin-top:8px;">
+                  <div><div class="sw-name">Impresión automática al guardar</div><div class="sw-desc">Envía la comanda al guardarla</div></div>
+                  <label class="switch"><input type="checkbox" id="cfgAutoImprimir" checked><span class="slider"></span></label>
+                </div>
+
+                <div class="ticket-preview mt-3" id="ticketPreview">
+                  <div class="tp-header">La Esquina del Sabor</div>
+                  <div class="tp-meta" style="text-align:center;">calor, orden y sabor</div>
+                  <div class="tp-sep"></div>
+                  <div class="tp-row"><span>COMANDA</span><span class="tp-strong">Nº 021</span></div>
+                  <div class="tp-sep"></div>
+                  <div class="tp-row"><span class="tp-meta">2 x</span><span>Hamburguesa</span></div>
+                  <div class="tp-row" style="padding-left:26px;color:var(--warn);">· Sin cebolla</div>
+                  <div class="tp-row"><span class="tp-meta">1 x</span><span>Perro caliente</span></div>
+                  <div class="tp-sep"></div>
+                  <div class="tp-row"><span class="tp-strong">TOTAL</span><span class="tp-strong" id="previewTotal">$ 18,00</span></div>
+                </div>
+
+                <button type="button" class="btn-ghost-brand w-100 mt-3" id="btnProbar"><i class="bi bi-play-circle"></i> Imprimir comanda de prueba</button>
+              </div>
+            </div>
+
+            <div class="panel mt-4" data-od-id="panel-datos-sistema">
+              <div class="panel-head"><h2 class="panel-title"><i class="bi bi-database"></i> Datos del sistema</h2></div>
+              <div class="panel-body">
+                <div class="switch-row" style="border-top:0;padding-top:0;">
+                  <div><div class="sw-name">Respaldos automáticos</div><div class="sw-desc">Respaldo diario al cierre de jornada</div></div>
+                  <label class="switch"><input type="checkbox" id="cfgBackup" checked><span class="slider"></span></label>
+                </div>
+                <div class="switch-row" style="border-top:1px solid var(--border);">
+                  <div><div class="sw-name">Modo local sin internet</div><div class="sw-desc">Operación continua ante cortes de red</div></div>
+                  <label class="switch"><input type="checkbox" id="cfgLocal" checked><span class="slider"></span></label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom" style="border-color:var(--border);">
+      <span class="sidebar-name" id="mobileNavLabel">La Esquina <span>del Sabor</span></span>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <nav class="sidebar-nav">
+        <button class="nav-item" type="button" data-module="dashboard"><i class="bi bi-grid-1x2"></i>Panel del día</button>
+        <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
+        <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
+        <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos</button>
+        <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
+        <button class="nav-item" type="button" data-module="recetas"><i class="bi bi-journal-bookmark"></i>Recetas</button>
+        <button class="nav-item" type="button" data-module="inventario"><i class="bi bi-box-seam"></i>Inventario</button>
+        <button class="nav-item" type="button" data-module="clientes"><i class="bi bi-people"></i>Clientes</button>
+        <button class="nav-item" type="button" data-module="reportes"><i class="bi bi-bar-chart"></i>Reportes</button>
+        <button class="nav-item" type="button" data-module="usuarios"><i class="bi bi-shield-lock"></i>Usuarios y permisos</button>
+        <button class="nav-item active" type="button" data-module="configuracion"><i class="bi bi-sliders"></i>Configuración</button>
+      </nav>
+    </div>
+  </div>
+
+  <div class="toast-slot" id="toastSlot" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var today = new Date();
+      var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      document.getElementById('todayDate').textContent = today.getDate() + ' de ' +
+        ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][today.getMonth()] +
+        ' de ' + today.getFullYear();
+
+      var rutas = {
+        dashboard: 'dashboard.html', comandas: 'comandas.html', cocina: 'cocina.html',
+        ventas: 'ventas.html', creditos: 'creditos.html', catalogo: 'catalogo.html',
+        recetas: 'recetas.html', inventario: 'inventario.html', clientes: 'clientes.html',
+        reportes: 'reportes.html', usuarios: 'usuarios.html', configuracion: 'configuracion.html'
+      };
+      document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var destino = rutas[b.getAttribute('data-module')];
+          if (destino) window.location.href = destino;
+          var off = bootstrap.Offcanvas.getInstance(document.getElementById('mobileNav'));
+          if (off) off.hide();
+        });
+      });
+
+      // Tasa
+      document.getElementById('cfgTasa').addEventListener('input', function () {
+        var v = this.value.trim() || '0,00';
+        document.getElementById('tasaActual').innerHTML = 'Bs ' + v + ' <small>/ 1 USD</small>';
+        document.getElementById('previewTotal').textContent = 'Bs ' + (11.70 * parseFloat((v || '42.50').replace(',', '.'))).toFixed(2).replace('.', ',');
+      });
+      document.getElementById('previewTotal').textContent = 'Bs ' + (11.70 * 42.50).toFixed(2).replace('.', ',');
+
+      // Prueba impresora
+      var preview = document.getElementById('ticketPreview');
+      document.getElementById('btnProbar').addEventListener('click', function () {
+        preview.classList.add('is-printing');
+        toast('Enviando comanda de prueba a la impresora térmica…', 'ok');
+        setTimeout(function () { preview.classList.remove('is-printing'); toast('Impresión de prueba completada.', 'ok'); }, 1500);
+      });
+
+      // Guardar
+      document.getElementById('btnGuardarTodo').addEventListener('click', function () {
+        var nombre = document.getElementById('cfgNombre').value.trim();
+        var tasa = document.getElementById('cfgTasa').value.trim();
+        if (!nombre) { toast('El nombre del negocio es obligatorio.'); return; }
+        if (!tasa || parseFloat(tasa.replace(',', '.')) <= 0) { toast('Ingresa una tasa BCV válida.'); return; }
+        toast('Configuración guardada correctamente.', 'ok');
+      });
+
+      function toast(msg, tipo) {
+        var slot = document.getElementById('toastSlot');
+        var el = document.createElement('div');
+        el.className = 'mini-toast' + (tipo === 'ok' ? ' ok' : '');
+        el.innerHTML = (tipo === 'ok' ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-info-circle-fill"></i>') + '<span>' + msg + '</span>';
+        slot.appendChild(el);
+        setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity 220ms'; setTimeout(function () { el.remove(); }, 230); }, 2200);
+      }
+    })();
+  </script>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
