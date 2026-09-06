@@ -330,9 +330,9 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -365,8 +365,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <button type="button" class="topbar-back" id="btnVolver" aria-label="Volver a la lista de comandas"><i class="bi bi-arrow-left"></i></button>
@@ -381,7 +381,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
 
         <div class="comanda-head">
           <div class="comanda-id">
@@ -561,25 +561,16 @@
       var TASA = parseFloat(('42.50').replace(',', '.'));
 
       // Catálogo de ejemplo
-      var CATALOGO = [
-        { name: 'Hamburguesa Esquina', cat: 'platos', price: 6.50, combo: false },
-        { name: 'Hamburguesa doble', cat: 'platos', price: 9.00, combo: false },
-        { name: 'Perro caliente', cat: 'platos', price: 4.00, combo: false },
-        { name: 'Arepa reina pepiada', cat: 'platos', price: 5.50, combo: false },
-        { name: 'Arepa dominó', cat: 'platos', price: 5.00, combo: false },
-        { name: 'Pepito de res', cat: 'platos', price: 8.50, combo: false },
-        { name: 'Ensalada César', cat: 'platos', price: 6.00, combo: false },
-        { name: 'Combo Esquina <span class="prod-tag">Combo</span>', cat: 'combos', price: 11.00, combo: true, saves: 2.00 },
-        { name: 'Combo Familiar <span class="prod-tag">Combo</span>', cat: 'combos', price: 21.00, combo: true, saves: 4.00 },
-        { name: 'Combo Peregrino <span class="prod-tag">Combo</span>', cat: 'combos', price: 16.50, combo: true, saves: 3.00 },
-        { name: 'Refresco 500ml', cat: 'bebidas', price: 1.50, combo: false },
-        { name: 'Jugo natural', cat: 'bebidas', price: 2.00, combo: false },
-        { name: 'Malteada', cat: 'bebidas', price: 3.00, combo: false },
-        { name: 'Café con leche', cat: 'bebidas', price: 1.20, combo: false },
-        { name: 'Agua 500ml', cat: 'bebidas', price: 1.00, combo: false },
-        { name: 'Flan casero', cat: 'postres', price: 2.50, combo: false },
-        { name: 'Papas a la francesa', cat: 'postres', price: 2.20, combo: false },
-        { name: 'Porción extra queso', cat: 'postres', price: 1.40, combo: false }
+            var CATALOGO = [
+        { name: 'Hamburguesa Esquina', cat: 'platos', price: 5.50, combo: false },
+        { name: 'Perro caliente', cat: 'platos', price: 3.00, combo: false },
+        { name: 'Arepa dominó', cat: 'platos', price: 2.50, combo: false },
+        { name: 'Jugo natural', cat: 'bebidas', price: 1.50, combo: false },
+        { name: 'Papas fritas extra', cat: 'extras', price: 3.50, combo: false },
+        { name: 'Refresco 500 ml', cat: 'bebidas', price: 1.00, combo: false },
+        { name: 'Combo Esquina <span class="prod-tag">Combo</span>', cat: 'combos', price: 10.00, combo: true, saves: 2.00 },
+        { name: 'Combo Peregrino <span class="prod-tag">Combo</span>', cat: 'combos', price: 6.50, combo: true, saves: 1.00 },
+        { name: 'Combo Fiesta <span class="prod-tag">Combo</span>', cat: 'combos', price: 20.00, combo: true, saves: 4.00 }
       ];
 
       // Clientes frecuentes de ejemplo

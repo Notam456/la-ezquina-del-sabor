@@ -122,9 +122,9 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -157,8 +157,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -169,7 +169,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <div class="page-head">
           <div>
             <p class="page-eyebrow">Sistema · Parámetros</p>

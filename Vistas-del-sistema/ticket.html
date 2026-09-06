@@ -2,9 +2,10 @@
 <!--
   La Esquina del Sabor · Vista 3.5 — Comanda Impresa (Layout Térmico 80mm)
   Preview en pantalla de la comanda tal como sale en la impresora térmica de cocina.
-  Solo se imprime el ticket (80mm, mono, sin fondo). El resto de la página es entorno de preview.
-  Basado en los tokens de brand de DESIGN.md.
+  Vista standalone de preview: solo se imprime el ticket (80mm, mono, sin fondo).
+  Basado en los tokens de brand de DESIGN.md. Botones y base del shell en assets/app.css.
 -->
+<!-- impeccable-disable cramped-padding -- recibo térmico de 80mm: bloque de impresión a sangre plena (líneas separadoras .tk-sep), no es una tarjeta de UI -->
 <html lang="es">
 <head>
 <meta charset="utf-8" />
@@ -13,42 +14,22 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-
-  <link rel="stylesheet" href="assets/app.css" />
+<link rel="stylesheet" href="assets/app.css" />
 
 <style>
-  
 
-  *, *::before, *::after { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-  a { color: inherit; text-decoration: none; }
+  /* ── Solo estilos propios de esta vista: entorno de preview + ticket 80mm ── */
 
-  .shell { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 48px; }
+  .tk-shell { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px 48px; }
 
-  .toolbar {
+  .tk-toolbar {
     width: 100%; max-width: 560px; display: flex; align-items: center; justify-content: space-between;
     gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
   }
-  .toolbar .t-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
-  .toolbar .t-sub { font-size: 12.5px; color: var(--muted); }
-  .toolbar-actions { display: flex; gap: 10px; }
-  .btn-ghost-brand {
-    background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2);
-    font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 9px 14px;
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out);
-  }
-  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
-  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
-  .btn-primary-brand {
-    background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px;
-    border-radius: var(--radius-md); padding: 9px 16px; border: 0; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
-  }
-  .btn-primary-brand:hover { background: var(--accent-strong); }
-  .btn-primary-brand:active { transform: scale(.98); }
-  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
+  .tk-toolbar .t-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .tk-toolbar .t-sub { font-size: 12.5px; color: var(--muted); }
+  .tk-toolbar-actions { display: flex; gap: 10px; }
+  .btn-back { color: var(--accent-ghost); font-weight: 600; font-size: 13px; text-decoration: none; }
 
   .preview-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
   .measure-tag { font-family: var(--font-mono); font-size: 12px; color: var(--meta); display: flex; align-items: center; gap: 6px; }
@@ -70,6 +51,7 @@
   .tk-sep { width: 100%; border: 0; border-top: 1.5px dashed var(--border-strong); margin: 4px 0; }
   .tk-sep-solid { width: 100%; border: 0; border-top: 1.5px solid var(--fg); margin: 4px 0; }
   .tk-strong { font-weight: 700; }
+  .tk-warn { color: var(--warn); }
   .tk-num { font-size: 22px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.1; }
   .tk-block { margin: 7px 0; }
   .tk-row { display: flex; justify-content: space-between; gap: 8px; }
@@ -97,12 +79,10 @@
   .tk-foot { margin-top: 8px; color: var(--muted); font-size: 10.5px; text-align: center; }
   .tk-qr { color: var(--meta); letter-spacing: 0.1em; }
 
-  .only-print { display: none; }
-
   /* ── Solo se imprime el ticket ─────────────────────────────── */
   @media print {
     body { background: var(--surface); }
-    .shell, .toolbar, .measure-tag, .no-print { display: none; }
+    .tk-shell, .tk-toolbar, .measure-tag, .no-print { display: none; }
     .ticket, .ticket * { box-shadow: none !important; }
     .ticket {
       width: 80mm; min-height: 0;
@@ -114,18 +94,19 @@
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
+
 </style>
 </head>
 <body>
-  <div class="shell">
+  <div class="tk-shell">
 
-    <div class="toolbar no-print">
+    <div class="tk-toolbar no-print">
       <div>
-        <button type="button" class="btn btn-link p-0 mb-1" id="btnVolver" style="color:var(--accent-ghost); font-weight:600; font-size:13px; text-decoration:none;"><i class="bi bi-arrow-left"></i> Volver a la comanda</button>
+        <button type="button" class="btn btn-link p-0 mb-1 btn-back" id="btnVolver"><i class="bi bi-arrow-left"></i> Volver a la comanda</button>
         <div class="t-title">Preview · Comanda impresa</div>
         <div class="t-sub">Layout térmico 80&nbsp;mm · recibo de cocina</div>
       </div>
-      <div class="toolbar-actions">
+      <div class="tk-toolbar-actions">
         <button type="button" class="btn-ghost-brand" id="btnReimprimir"><i class="bi bi-arrow-counterclockwise"></i> Reimprimir</button>
         <button type="button" class="btn-primary-brand" id="btnImprimir"><i class="bi bi-printer"></i> Imprimir comanda</button>
       </div>
@@ -173,8 +154,18 @@
           <div class="tk-linea">
             <div class="tk-cols">
               <span class="c-cant">1</span>
-              <span class="c-nombre">Jugo natural (naranja 500&nbsp;ml)</span>
+              <span class="c-nombre">Papas fritas extra</span>
               <span class="c-pv">3,50</span>
+            </div>
+            <div class="tk-nota">Crujientes</div>
+            <div class="tk-tipo casa">[CASA]</div>
+          </div>
+
+          <div class="tk-linea">
+            <div class="tk-cols">
+              <span class="c-cant">1</span>
+              <span class="c-nombre">Arepa dominó</span>
+              <span class="c-pv">2,50</span>
             </div>
             <div class="tk-tipo casa">[CASA]</div>
           </div>
@@ -182,16 +173,15 @@
           <div class="tk-linea">
             <div class="tk-cols">
               <span class="c-cant">1</span>
-              <span class="c-nombre">Papas fritas extra</span>
-              <span class="c-pv">3,50</span>
+              <span class="c-nombre">Refresco 500&nbsp;ml</span>
+              <span class="c-pv">1,00</span>
             </div>
-            <div class="tk-nota">Crujientes</div>
             <div class="tk-tipo casa">[CASA]</div>
           </div>
         </div>
 
         <div class="tk-block">
-          <div class="tk-strong" style="color:var(--warn);">Nota general</div>
+          <div class="tk-strong tk-warn">Nota general</div>
           <div class="tk-nota-gral">Surtir con salsa de la casa por separado</div>
         </div>
 

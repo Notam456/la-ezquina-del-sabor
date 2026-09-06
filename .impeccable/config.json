@@ -1,0 +1,15 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "overused-font",
+      "cream-palette",
+      "side-tab",
+      "kicker-above-heading",
+      "all-caps-body",
+      "low-contrast",
+      "undersized-ui-text"
+    ],
+    "ignoreFiles": [],
+    "ignoreValues": []
+  }
+}

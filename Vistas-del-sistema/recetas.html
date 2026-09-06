@@ -68,9 +68,7 @@
   .btn-primary-brand:active { transform: scale(.98); }
   .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
 
-  .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  .search-box { position: relative; flex: 1; min-width: 180px; }
-  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
+.filter-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
   .input-brand { width: 100%; background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 9px 12px; padding-left: 34px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
   .input-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
   .filter-count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-left: auto; white-space: nowrap; }
@@ -119,14 +117,14 @@
   .vacio { padding: 48px 20px; text-align: center; color: var(--meta); font-size: 14px; }
 
   @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
-  @media (max-width: 767.98px) { .filter-bar { flex-direction: column; align-items: stretch; } .filter-count { margin-left: 0; } table.rec { min-width: 720px; } }
+  @media (max-width: 767.98px) { .filter-card { flex-direction: column; align-items: stretch; } .filter-count { margin-left: 0; } table.rec { min-width: 720px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -159,8 +157,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -174,7 +172,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <div class="page-head">
           <div>
             <p class="page-eyebrow">Módulo recetas · Lista general</p>

@@ -75,9 +75,7 @@
   .btn-ghost-brand.danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); }
   .btn-ghost-brand.danger:focus-visible { box-shadow: 0 0 0 3px rgba(163,58,34,.3); }
 
-  .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  .search-box { position: relative; flex: 1; min-width: 180px; }
-  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
+.filter-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
   .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 9px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
   .input-brand { width: 100%; padding-left: 34px; }
   .select-brand { width: auto; min-width: 160px; }
@@ -136,14 +134,14 @@
   .vacio { padding: 48px 20px; text-align: center; color: var(--meta); font-size: 14px; }
 
   @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
-  @media (max-width: 767.98px) { .filter-bar { flex-direction: column; align-items: stretch; } .filter-selects { flex-direction: column; } .select-brand { width: 100%; min-width: 0; } .filter-count { margin-left: 0; } table.inv { min-width: 760px; } }
+  @media (max-width: 767.98px) { .filter-card { flex-direction: column; align-items: stretch; } .filter-selects { flex-direction: column; } .select-brand { width: 100%; min-width: 0; } .filter-count { margin-left: 0; } table.inv { min-width: 760px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -176,8 +174,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -191,7 +189,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <div class="page-head">
           <div>
             <p class="page-eyebrow">Módulo inventario · Materia prima</p>
@@ -268,7 +266,7 @@
                       <div class="n">Carne molida 150 g <span class="stock-badge critico">Crítico</span></div>
                     </div>
                   </td>
-                  <td><span class="chip-uni">g</span></td>
+                  <td><span class="chip-uni">kg</span></td>
                   <td class="col-num"><span class="stock critico tabular">1,4 <span style="color:var(--muted); font-family:var(--font-mono); font-size:12px;">kg</span></span></td>
                   <td class="col-num"><span class="minimo">3 kg</span></td>
                   <td class="col-num"><div class="usd">$ 4,00</div><div class="bs">Bs 170,00</div></td>
@@ -352,7 +350,7 @@
                       <div class="n">Salsa especial</div>
                     </div>
                   </td>
-                  <td><span class="chip-uni">ml</span></td>
+                  <td><span class="chip-uni">L</span></td>
                   <td class="col-num"><span class="stock tabular">1,2 <span style="color:var(--muted); font-family:var(--font-mono); font-size:12px;">L</span></span></td>
                   <td class="col-num"><span class="minimo">0,5 L</span></td>
                   <td class="col-num"><div class="usd">$ 0,80</div><div class="bs">Bs 34,00</div></td>

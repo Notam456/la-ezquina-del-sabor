@@ -2,7 +2,7 @@
 <!--
   La Esquina del Sabor · Vista 7.1 — Lista de Clientes
   Tabla de clientes registrados con buscador por nombre/teléfono y acceso a perfil.
-  Vista Lista (DESIGN.md §7). Shell común.
+  Vista Lista (DESIGN.md §7). Shell común en assets/app.css.
 -->
 <html lang="es">
 <head>
@@ -12,79 +12,32 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-
-  <link rel="stylesheet" href="assets/app.css" />
+<link rel="stylesheet" href="assets/app.css" />
 
 <style>
-  
 
-  *, *::before, *::after { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-  a { color: inherit; text-decoration: none; }
-  .tabular { font-variant-numeric: tabular-nums; }
-
-  .app-shell { display: flex; min-height: 100vh; }
-  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
-  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
-  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
-  .sidebar-logo i { font-size: 19px; }
-  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
-  .sidebar-name span { color: var(--accent); }
-  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
-  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
-  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
-  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
-  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
-  .nav-item:hover i { color: var(--fg-2); }
-  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
-  .nav-item.active i { color: var(--accent-ghost); }
-  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
-  .user-chip { display: flex; align-items: center; gap: 11px; }
-  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
-  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
-  .user-role { font-size: 12.5px; color: var(--muted); }
-
-  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
-  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
-  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
-  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .work-status.open { color: var(--success); background: var(--success-soft); }
-  .work-status.open .dot { background: var(--success); }
+  /* ── Solo estilos propios de esta vista: tabla de clientes ── */
 
   .content { padding: 24px; padding-bottom: 40px; }
-  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
-  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
-  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+
   .head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-  .btn-primary-brand { background: var(--accent); color: var(--surface); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out); }
-  .btn-primary-brand:hover { background: var(--accent-strong); }
-  .btn-primary-brand:active { transform: scale(.98); }
-  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); outline: none; }
-  .btn-ghost-brand { background: transparent; border: 1.5px solid var(--border-strong); color: var(--fg-2); font-weight: 600; font-size: 14px; border-radius: var(--radius-md); padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
-  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
-  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
-
-  .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  .search-box { position: relative; flex: 1; min-width: 200px; }
-  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
-  .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 9px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
-  .input-brand { width: 100%; padding-left: 34px; }
-  .select-brand { width: auto; min-width: 150px; }
-  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+  .filter-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--elev-1);
+    padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
   .filter-count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-left: auto; white-space: nowrap; }
 
   .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); overflow: hidden; }
-  .table-responsive { overflow-x: auto; }
   table.cl { width: 100%; border-collapse: collapse; font-size: 14px; }
-  table.cl thead th { position: sticky; top: 0; background: var(--bg); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.cl thead th {
+    position: sticky; top: 0; background: var(--bg);
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--meta); text-align: left; padding: 11px 14px;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
   table.cl tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   table.cl tbody tr:last-child td { border-bottom: 0; }
   table.cl tbody tr { transition: background var(--motion-fast) var(--ease-out); }
@@ -94,7 +47,6 @@
   .cli-name { display: flex; align-items: center; gap: 11px; }
   .cli-avatar { width: 36px; height: 36px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ghost); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
   .cli-name .n { font-weight: 600; color: var(--fg); }
-  .cli-name .d { font-size: 12px; color: var(--muted); }
   .tel { font-family: var(--font-mono); font-size: 13px; color: var(--fg-2); }
   .puntos { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
   .puntos i { color: var(--accent); font-size: 14px; }
@@ -104,37 +56,27 @@
   .saldo.debe i { font-size: 12px; margin-right: 2px; }
   .saldo.al-dia { color: var(--success); }
   .saldo .bs { display: block; font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); font-weight: 500; }
-  .estado-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+  .estado-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 999px; padding: 2px 8px; white-space: nowrap; margin-left: 6px; }
   .estado-badge.moroso { background: var(--danger-soft); color: var(--danger); }
   .estado-badge.saldo { background: var(--success-soft); color: var(--success); }
-  .row-actions { display: inline-flex; gap: 4px; }
-  .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid transparent; background: transparent; color: var(--muted); display: inline-grid; place-items: center; font-size: 14px; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--surface-sunken); color: var(--fg); border-color: var(--border-strong); }
-  .icon-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
-  .icon-btn.credito { color: var(--info); }
-  .icon-btn.credito:hover { border-color: var(--info); color: var(--info); background: var(--info-soft); }
 
-  .pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
-  .pager-info { font-size: 13px; color: var(--muted); }
-  .pager-info strong { color: var(--fg); font-family: var(--font-mono); }
-  .pager-controls { display: flex; gap: 6px; }
-  .page-btn { min-width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--fg-2); font-weight: 600; font-size: 13px; display: inline-grid; place-items: center; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
-  .page-btn:hover:not(:disabled):not(.current) { border-color: var(--fg-2); color: var(--fg); }
-  .page-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
-  .page-btn.current { background: var(--accent); border-color: var(--accent); color: var(--surface); }
-  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .icon-btn.credito { color: var(--info); }
+  .icon-btn.credito:hover { background: var(--info-soft); color: var(--info); }
 
   .vacio { padding: 48px 20px; text-align: center; color: var(--meta); font-size: 14px; }
 
-  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
-  @media (max-width: 767.98px) { .filter-bar { flex-direction: column; align-items: stretch; } .filter-count { margin-left: 0; } table.cl { min-width: 760px; } }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  @media (max-width: 767.98px) {
+    .filter-card { flex-direction: column; align-items: stretch; }
+    .filter-count { margin-left: 0; }
+    table.cl { min-width: 760px; }
+  }
+
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -167,8 +109,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -179,10 +121,10 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <div class="page-head">
           <div>
-            <p class="page-eyebrow">Módulo clientes</p>
+            <p class="page-eyebrow">Clientes · Directorio</p>
             <h1 class="page-title">Clientes</h1>
             <p class="page-sub">Clientes registrados, puntos acumulados y saldo de crédito.</p>
           </div>
@@ -192,7 +134,7 @@
           </div>
         </div>
 
-        <div class="filter-bar" data-od-id="filtros">
+        <div class="filter-card" data-od-id="filtros">
           <div class="search-box">
             <i class="bi bi-search"></i>
             <input type="text" class="input-brand" id="buscar" placeholder="Buscar por nombre o teléfono…" aria-label="Buscar cliente" />
@@ -210,7 +152,7 @@
                   <th class="col-num">Puntos</th>
                   <th class="col-num">Compras</th>
                   <th class="col-num">Saldo crédito</th>
-                  <th style="text-align:right;">Acciones</th>
+                  <th class="text-end">Acciones</th>
                 </tr>
               </thead>
               <tbody id="tbody">
@@ -218,7 +160,7 @@
                   <td>
                     <div class="cli-name">
                       <span class="cli-avatar">LM</span>
-                      <div class="n">Lisbeth Montilla <span class="estado-badge saldo" style="display:none;">Al día</span></div>
+                      <div class="n">Lisbeth Montilla</div>
                     </div>
                   </td>
                   <td><span class="tel">0424-111 2233</span></td>
@@ -226,7 +168,7 @@
                   <td class="col-num"><span class="compras">18</span></td>
                   <td class="col-num"><div class="saldo al-dia">$ 0,00<div class="bs">Al día</div></div></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn" data-act="perfil" title="Ver perfil"><i class="bi bi-eye"></i></button>
                       <button type="button" class="icon-btn credito" data-act="credito" title="Registro de créditos"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -246,7 +188,7 @@
                   <td class="col-num"><span class="compras">12</span></td>
                   <td class="col-num"><div class="saldo al-dia">$ 0,00<div class="bs">Al día</div></div></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn" data-act="perfil" title="Ver perfil"><i class="bi bi-eye"></i></button>
                       <button type="button" class="icon-btn credito" data-act="credito" title="Registro de créditos"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -266,7 +208,7 @@
                   <td class="col-num"><span class="compras">9</span></td>
                   <td class="col-num"><div class="saldo debe"><i class="bi bi-caret-down-fill"></i>$ 45,00<div class="bs">Bs 1.912,50</div></div></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn" data-act="perfil" title="Ver perfil"><i class="bi bi-eye"></i></button>
                       <button type="button" class="icon-btn credito" data-act="credito" title="Registro de créditos"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -286,7 +228,7 @@
                   <td class="col-num"><span class="compras">27</span></td>
                   <td class="col-num"><div class="saldo al-dia">$ 0,00<div class="bs">Al día</div></div></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn" data-act="perfil" title="Ver perfil"><i class="bi bi-eye"></i></button>
                       <button type="button" class="icon-btn credito" data-act="credito" title="Registro de créditos"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -298,15 +240,15 @@
                   <td>
                     <div class="cli-name">
                       <span class="cli-avatar">JL</span>
-                      <div class="n">José López <span class="estado-badge moroso">Moroso</span></div>
+                      <div class="n">José López</div>
                     </div>
                   </td>
                   <td><span class="tel">0426-334 0129</span></td>
                   <td class="col-num"><span class="puntos tabular">540 <i class="bi bi-star-fill"></i></span></td>
                   <td class="col-num"><span class="compras">14</span></td>
-                  <td class="col-num"><div class="saldo debe"><i class="bi bi-caret-down-fill"></i>$ 28,50<div class="bs">Bs 1.211,25</div></div></td>
+                  <td class="col-num"><div class="saldo al-dia">$ 0,00<div class="bs">Al día</div></div></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn" data-act="perfil" title="Ver perfil"><i class="bi bi-eye"></i></button>
                       <button type="button" class="icon-btn credito" data-act="credito" title="Registro de créditos"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -326,7 +268,7 @@
                   <td class="col-num"><span class="compras">11</span></td>
                   <td class="col-num"><div class="saldo al-dia">$ 0,00<div class="bs">Al día</div></div></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn" data-act="perfil" title="Ver perfil"><i class="bi bi-eye"></i></button>
                       <button type="button" class="icon-btn credito" data-act="credito" title="Registro de créditos"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -338,15 +280,15 @@
                   <td>
                     <div class="cli-name">
                       <span class="cli-avatar">RP</span>
-                      <div class="n">Rosa Pérez</div>
+                      <div class="n">Rosa Pérez <span class="estado-badge moroso">Moroso</span></div>
                     </div>
                   </td>
                   <td><span class="tel">0424-888 7766</span></td>
                   <td class="col-num"><span class="puntos tabular">1.180 <i class="bi bi-star-fill"></i></span></td>
                   <td class="col-num"><span class="compras">16</span></td>
-                  <td class="col-num"><div class="saldo al-dia">$ 0,00<div class="bs">Al día</div></div></td>
+                  <td class="col-num"><div class="saldo debe"><i class="bi bi-caret-down-fill"></i>$ 28,50<div class="bs">Bs 1.211,25</div></div></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn" data-act="perfil" title="Ver perfil"><i class="bi bi-eye"></i></button>
                       <button type="button" class="icon-btn credito" data-act="credito" title="Registro de créditos"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="editar" title="Editar"><i class="bi bi-pencil"></i></button>
@@ -397,6 +339,8 @@
     </div>
   </div>
 
+  <div class="toast-slot" id="toastSlot" aria-live="polite"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     (function () {
@@ -435,11 +379,16 @@
       });
 
       function toast(msg) {
-        var t = document.createElement('div');
-        t.textContent = msg;
-        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--footer-bg);color:var(--surface);padding:11px 18px;border-radius:12px;font-weight:600;font-size:13.5px;z-index:1080;box-shadow:var(--elev-2);';
-        document.body.appendChild(t);
-        setTimeout(function () { t.remove(); }, 1800);
+        var slot = document.getElementById('toastSlot');
+        var el = document.createElement('div');
+        el.className = 'mini-toast ok';
+        el.innerHTML = '<i class="bi bi-check-circle-fill"></i><span>' + msg + '</span>';
+        slot.appendChild(el);
+        setTimeout(function () {
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 220ms';
+          setTimeout(function () { el.remove(); }, 230);
+        }, 2200);
       }
 
       document.querySelectorAll('.nav-item[data-module]').forEach(function (b) {

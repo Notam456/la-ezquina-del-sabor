@@ -178,9 +178,9 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -213,8 +213,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -228,7 +228,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <div class="page-head">
           <div>
             <button type="button" class="btn btn-link p-0 mb-1" id="btnVolver" style="color:var(--accent-ghost); font-weight:600; font-size:13px; text-decoration:none;"><i class="bi bi-arrow-left"></i> Volver al catálogo</button>
@@ -325,15 +325,15 @@
               <div class="field" id="bloqueValor">
                 <label for="cValor" id="lblValor">Descuento %</label>
                 <div class="input-margin" style="position:relative;">
-                  <input type="number" class="input-brand" id="cValor" value="10" min="0" style="padding-right:36px;" />
+                  <input type="number" class="input-brand" id="cValor" value="20" min="0" style="padding-right:36px;" />
                   <span class="post" id="valorSuf" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); font-family:var(--font-mono); font-weight:600; color:var(--muted); font-size:14px;">%</span>
                 </div>
               </div>
 
               <div class="calc-box">
                 <div class="calc-row"><span class="k">Suma de productos</span><span><div class="v-usd" id="kSubtotal">$ 10,00</div><div class="calc-bs" id="kSubtotalBs">Bs 425,00</div></span></div>
-                <div class="calc-row ahorro"><span class="k">Descuento</span><span><div class="v-usd tabular" id="kDescuento">− $ 1,00</div></span></div>
-                <div class="calc-row total"><span class="k">Precio del combo</span><span><div class="v-usd" id="kTotal">$ 9,00</div><div class="calc-bs accent" id="kTotalBs">Bs 382,50</div></span></div>
+                <div class="calc-row ahorro"><span class="k">Descuento</span><span><div class="v-usd tabular" id="kDescuento">− $ 2,00</div></span></div>
+                <div class="calc-row total"><span class="k">Precio del combo</span><span><div class="v-usd" id="kTotal">$ 8,00</div><div class="calc-bs accent" id="kTotalBs">Bs 340,00</div></span></div>
               </div>
 
               <div class="field" style="margin-top:16px;">
@@ -377,7 +377,7 @@
               <span class="cc-item">1× Hamburguesa</span>
               <span class="cc-item">1× Papas</span>
               <span class="cc-item">1× Refresco</span>
-              <span class="cc-item" style="background:var(--success-soft); color:var(--success);">−10%</span>
+              <span class="cc-item" style="background:var(--success-soft); color:var(--success);">−20%</span>
             </div>
             <div class="cc-foot">
               <span class="chk-estado activo"><span class="estado-dot"></span>Activo</span>
@@ -390,19 +390,19 @@
 
           <div class="combo-card">
             <div class="cc-top">
-              <div>
+<div>
                 <div class="cc-name">Combo Peregrino</div>
-                <div class="cc-desc">Doble proteína · ahorro familiar</div>
+                <div class="cc-desc">Perro · arepa · refresco</div>
               </div>
               <div class="cc-precio">
-                <div class="cc-usd">$ 6,50</div>
-                <div class="cc-bs">Bs 276,25</div>
+                <div class="cc-usd">$ 5,50</div>
+                <div class="cc-bs">Bs 233,75</div>
               </div>
             </div>
             <div class="cc-pos">
               <span class="cc-item">1× Perro</span>
               <span class="cc-item">1× Arepa</span>
-              <span class="cc-item">1× Jugo</span>
+              <span class="cc-item">1× Refresco</span>
               <span class="cc-item" style="background:var(--success-soft); color:var(--success);">−$ 1,00</span>
             </div>
             <div class="cc-foot">
@@ -420,16 +420,16 @@
                 <div class="cc-name">Combo Fiesta</div>
                 <div class="cc-desc">Para compartir en grupo</div>
               </div>
-              <div class="cc-precio">
-                <div class="cc-usd">$ 15,40</div>
-                <div class="cc-bs">Bs 654,50</div>
+<div class="cc-precio">
+                <div class="cc-usd">$ 16,00</div>
+                <div class="cc-bs">Bs 680,00</div>
               </div>
             </div>
             <div class="cc-pos">
               <span class="cc-item">2× Hamburguesa</span>
               <span class="cc-item">2× Papas</span>
               <span class="cc-item">2× Refresco</span>
-              <span class="cc-item" style="background:var(--success-soft); color:var(--success);">−15%</span>
+              <span class="cc-item" style="background:var(--success-soft); color:var(--success);">−$ 4,00</span>
             </div>
             <div class="cc-foot">
               <span class="chk-estado inactivo"><span class="estado-dot"></span>Inactivo</span>

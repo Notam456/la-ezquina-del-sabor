@@ -133,9 +133,9 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -168,8 +168,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -180,7 +180,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <nav class="breadcrumb-nav">
           <a href="inventario.html">Inventario</a>
           <span class="sep">/</span>
@@ -325,7 +325,7 @@
         queso:   { uni: 'kg',  stock: 2.1, costo: 3.60, label: 'Queso blanco' },
         pandeperro: { uni: 'unidad', stock: 38, costo: 0.45, label: 'Pan de perro caliente' },
         papas:   { uni: 'kg',  stock: 9,   costo: 2.20, label: 'Papas (para freír)' },
-        salsa:   { uni: 'ml',  stock: 1.2, costo: 0.80, label: 'Salsa especial' },
+        salsa:   { uni: 'L',  stock: 1.2, costo: 0.80, label: 'Salsa especial' },
         frijoles:{ uni: 'kg',  stock: 5.5, costo: 2.00, label: 'Frijoles negros' },
         refrescos:{uni: 'unidad', stock: 72, costo: 0.70, label: 'Refrescos (lata)' }
       };

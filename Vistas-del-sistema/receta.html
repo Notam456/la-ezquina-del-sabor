@@ -138,9 +138,9 @@
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -173,8 +173,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -188,7 +188,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <div class="page-head">
           <div>
             <button type="button" class="btn btn-link p-0 mb-1" id="btnVolver" style="color:var(--accent-ghost); font-weight:600; font-size:13px; text-decoration:none;"><i class="bi bi-arrow-left"></i> Volver a recetas</button>
@@ -235,23 +235,23 @@
 
               <div class="ing-linea">
                 <select class="select-brand ing-sel">
-                  <option value="2.50" selected>Pan artesanal — $ 2,50</option>
-                  <option value="4.00">Carne 150 g — $ 4,00</option>
-                  <option value="1.20">Queso — $ 1,20</option>
+                  <option value="0.90" selected>Pan artesanal — $ 0,90</option>
+                  <option value="4.00">Carne molida 150 g — $ 4,00</option>
+                  <option value="1.20">Queso blanco — $ 1,20</option>
                   <option value="0.80">Salsa especial — $ 0,80</option>
                   <option value="0.00">Picante casero — sin precio</option>
                 </select>
                 <div class="l-cant"><input type="number" class="input-brand ing-cant" value="1" min="0.01" step="0.01" aria-label="Cantidad" style="text-align:center; padding:8px 10px;" /></div>
                 <div class="l-unidad"><select class="select-brand"><option>unidad</option><option>g</option><option>ml</option><option>kg</option><option>lb</option></select></div>
-                <div class="l-subtotal"><div class="usd">$ 2,50</div><div class="bs">Bs 106,25</div></div>
+                <div class="l-subtotal"><div class="usd">$ 0,90</div><div class="bs">Bs 38,25</div></div>
                 <div class="l-elim" style="display:flex; justify-content:flex-end;"><button type="button" class="kill-btn" title="Quitar"><i class="bi bi-trash3"></i></button></div>
               </div>
 
               <div class="ing-linea">
                 <select class="select-brand ing-sel">
-                  <option value="2.50">Pan artesanal — $ 2,50</option>
-                  <option value="4.00" selected>Carne 150 g — $ 4,00</option>
-                  <option value="1.20">Queso — $ 1,20</option>
+                  <option value="0.90">Pan artesanal — $ 0,90</option>
+                  <option value="4.00" selected>Carne molida 150 g — $ 4,00</option>
+                  <option value="1.20">Queso blanco — $ 1,20</option>
                   <option value="0.80">Salsa especial — $ 0,80</option>
                   <option value="0.00">Picante casero — sin precio</option>
                 </select>
@@ -263,9 +263,9 @@
 
               <div class="ing-linea">
                 <select class="select-brand ing-sel">
-                  <option value="2.50">Pan artesanal — $ 2,50</option>
-                  <option value="4.00">Carne 150 g — $ 4,00</option>
-                  <option value="1.20" selected>Queso — $ 1,20</option>
+                  <option value="0.90">Pan artesanal — $ 0,90</option>
+                  <option value="4.00">Carne molida 150 g — $ 4,00</option>
+                  <option value="1.20" selected>Queso blanco — $ 1,20</option>
                   <option value="0.80">Salsa especial — $ 0,80</option>
                   <option value="0.00">Picante casero — sin precio</option>
                 </select>
@@ -291,7 +291,7 @@
               <p class="side-label">Costo de la receta</p>
               <div class="calc-box">
                 <div class="calc-row"><span class="k">Nº de ingredientes</span><span class="tabular" id="kIng" style="font-family:var(--font-mono);">3</span></div>
-                <div class="calc-row total"><span class="k">Costo total</span><span><div class="v-usd" id="kUsd">$ 8,90</div><div class="calc-bs accent" id="kBs">Bs 378,25</div></span></div>
+                <div class="calc-row total"><span class="k">Costo total</span><span><div class="v-usd" id="kUsd">$ 7,30</div><div class="calc-bs accent" id="kBs">Bs 310,25</div></span></div>
               </div>
               <div class="side-actions">
                 <button type="button" class="btn-primary-brand" id="btnGuardar"><i class="bi bi-check-lg"></i> Guardar receta</button>

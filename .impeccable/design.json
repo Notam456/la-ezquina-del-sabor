@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-06T00:00:00.000Z",
+  "title": "Design System: La Esquina del Sabor",
+  "extensions": {
+    "colorMeta": {
+      "brand-orange": {
+        "role": "primary",
+        "displayName": "Naranja señal",
+        "canonical": "oklch(65% 0.17 48)",
+        "tonalRamp": ["#4c1f05", "#6b2a07", "#8a3609", "#a8430c", "#c9570f", "#e86a17", "#f4a264", "#fbe3cf"],
+        "purpose": "Acento funcional de marca; nunca como relleno decorativo."
+      },
+      "warm-paper": {
+        "role": "neutral",
+        "displayName": "Papel cálido",
+        "canonical": "#f5f1ea",
+        "tonalRamp": ["#221d18", "#4f463e", "#7a6f63", "#a2978a", "#c4b9ab", "#ddd4c7", "#e9e3da", "#f5f1ea"],
+        "purpose": "Canvas raíz; el fondo de página nunca es blanco puro."
+      },
+      "warm-ink": {
+        "role": "neutral",
+        "displayName": "Tinta cálida",
+        "canonical": "#201b16",
+        "tonalRamp": ["#0f0c09", "#201b16", "#3a332c", "#4a423a", "#6b625a", "#8f857a", "#bcb2a5", "#ece6dc"],
+        "purpose": "Texto principal y zonas de cierre; tinta marrón, no negro frío."
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Verde operativo",
+        "canonical": "#238141",
+        "tonalRamp": ["#0b2e18", "#123d21", "#17572c", "#1d6c37", "#238141", "#3f9c5d", "#8fc8a3", "#e2f2e7"],
+        "purpose": "Cobrado, cerrado, entregado."
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Rojo tierra",
+        "canonical": "#a33a22",
+        "tonalRamp": ["#4a1609", "#661f0e", "#822813", "#9e3118", "#a33a22", "#c45f47", "#e3a493", "#f8e3dc"],
+        "purpose": "Error, stock crítico, crédito pendiente."
+      },
+      "warn": {
+        "role": "semantic",
+        "displayName": "Ámbar",
+        "canonical": "#c77c08",
+        "tonalRamp": ["#5c3803", "#7d4c04", "#9e6106", "#b96f07", "#c77c08", "#d99a3e", "#ecc685", "#fcf0d9"],
+        "purpose": "Atención, entrega en tránsito, stock bajo."
+      },
+      "info": {
+        "role": "semantic",
+        "displayName": "Azul",
+        "canonical": "#3860be",
+        "tonalRamp": ["#16265b", "#1e3480", "#2644a3", "#2f54b8", "#3860be", "#5d82ce", "#a7bce3", "#e7ecf8"],
+        "purpose": "Enlaces, callouts informativos y pendiente de cobro."
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display / números",
+        "purpose": "N.°, de comanda, KPIs e importes USD; tabular."
+      },
+      "title": {
+        "displayName": "Titular de vista",
+        "purpose": "Títulos de página con eyebrow arriba."
+      },
+      "body": {
+        "displayName": "Cuerpo",
+        "purpose": "Texto operativo, celdas y descripciones."
+      },
+      "label": {
+        "displayName": "Etiqueta eyebrow",
+        "purpose": "Mayúsculas con tracking amplio, en piedra."
+      },
+      "money": {
+        "displayName": "Importe USD",
+        "purpose": "Protagonista tipográfico; siempre con par Bs en mono."
+      },
+      "mono": {
+        "displayName": "Mono meta",
+        "purpose": "Tasas, horas, IDs, valores de conversión."
+      }
+    },
+    "shadows": [
+      {
+        "name": "resting-card",
+        "value": "0 1px 2px rgba(32,27,22,.06), 0 1px 3px rgba(32,27,22,.08)",
+        "purpose": "Nivel por defecto de paneles, tarjetas KPI y tablas."
+      },
+      {
+        "name": "raised",
+        "value": "0 4px 12px rgba(32,27,22,.08), 0 2px 4px rgba(32,27,22,.06)",
+        "purpose": "KPI destacada del día y toasts."
+      },
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px rgba(232,106,23,.35)",
+        "purpose": "Anillo de foco visible en todo interactivo."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-150",
+        "value": "150ms cubic-bezier(0, 0, 0.2, 1)",
+        "purpose": "Transiciones de estado: badges, botones, hover."
+      },
+      {
+        "name": "panel-220",
+        "value": "220ms cubic-bezier(0, 0, 0.2, 1)",
+        "purpose": "Aparición de paneles, modales y toasts."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "767.98px" },
+      { "name": "md", "value": "991.98px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "La única acción sólida por vista (ej. Guardar e imprimir comanda).",
+      "html": "<button class=\"ds-btn-primary\"><svg viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M8 2v12M2 8h12\"/></svg>Guardar e imprimir</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:8px;background:#e86a17;color:#fff;border:0;border-radius:14px;padding:10px 16px;font-family:\"Inter\",system-ui,sans-serif;font-size:14.5px;font-weight:600;cursor:pointer;transition:background 150ms cubic-bezier(0,0,.2,1),transform 50ms ease}.ds-btn-primary:hover{background:#c9530a}.ds-btn-primary:active{transform:scale(.985)}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,106,23,.35)}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Acciones secundarias; sin sombra, borde 1.5px.",
+      "html": "<button class=\"ds-btn-ghost\">Cancelar</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid #c9beb0;color:#4a423a;border-radius:14px;padding:10px 16px;font-family:\"Inter\",system-ui,sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:border-color 150ms cubic-bezier(0,0,.2,1),color 150ms cubic-bezier(0,0,.2,1),background 150ms cubic-bezier(0,0,.2,1)}.ds-btn-ghost:hover{border-color:#4a423a;color:#201b16;background:#ece6dc}.ds-btn-ghost:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,106,23,.35)}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-brand",
+      "description": "Campo de formulario con label; foco naranja.",
+      "html": "<label class=\"ds-label\">Nombres</label><input class=\"ds-input\" type=\"text\" placeholder=\"Nombre del cliente\">",
+      "css": ".ds-label{display:block;font-family:\"Inter\",system-ui,sans-serif;font-size:13px;font-weight:600;color:#4a423a;margin-bottom:6px}.ds-input{width:100%;box-sizing:border-box;background:#fff;border:1.5px solid #c9beb0;border-radius:14px;padding:10px 12px;font-family:\"Inter\",system-ui,sans-serif;font-size:14px;color:#201b16;transition:border-color 150ms cubic-bezier(0,0,.2,1),box-shadow 150ms cubic-bezier(0,0,.2,1)}.ds-input:focus{outline:none;border-color:#e86a17;box-shadow:0 0 0 3px rgba(232,106,23,.35)}.ds-input::placeholder{color:#a89e92}"
+    },
+    {
+      "name": "Estado Badge",
+      "kind": "chip",
+      "refersTo": "badge-estado",
+      "description": "Estado de comanda; fondo tenue + tinta oscura del mismo color.",
+      "html": "<span class=\"ds-badge\"><span class=\"ds-badge-dot\"></span>Montar</span>",
+      "css": ".ds-badge{display:inline-flex;align-items:center;gap:6px;font-family:\"Inter\",system-ui,sans-serif;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:5px 11px;background:#fbe3cf;color:#a8460a}.ds-badge .ds-badge-dot{width:6px;height:6px;border-radius:50%;background:#e86a17}"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Ítem de navegación activo con carril naranja de 3px.",
+      "html": "<nav style=\"font-family:Inter,system-ui,sans-serif;font-size:13px;color:#7a7066;text-transform:uppercase;letter-spacing:.08em;padding:10px 12px 6px\">Operaci\u00f3n</nav><a class=\"ds-nav ds-nav-active\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path d=\"M2 6l6-4 6 4v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z\"/></svg>Comandas</a>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:11px;box-sizing:border-box;padding:10px 12px;border-radius:10px;font-family:\"Inter\",system-ui,sans-serif;font-size:14px;font-weight:500;color:#4a423a;text-decoration:none;transition:background 150ms cubic-bezier(0,0,.2,1),color 150ms cubic-bezier(0,0,.2,1)}.ds-nav:hover{background:#ece6dc;color:#201b16}.ds-nav:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,106,23,.35)}.ds-nav-active{background:#fbe3cf;color:#201b16;border-left:3px solid #e86a17;padding-left:12px}.ds-nav-active svg{color:#a8460a}"
+    },
+    {
+      "name": "KPI Card",
+      "kind": "card",
+      "refersTo": "card-kpi",
+      "description": "Métrica del día: eyebrow, número Display tabular y par Bs en mono.",
+      "html": "<div class=\"ds-kpi\"><div class=\"ds-kpi-label\">Ventas del d\u00eda</div><div class=\"ds-kpi-value\">$ 111,25</div><div class=\"ds-kpi-bs\">Bs 4.728,13</div></div>",
+      "css": ".ds-kpi{background:#fff;border:1px solid #ddd4c7;border-radius:20px;box-shadow:0 1px 2px rgba(32,27,22,.06),0 1px 3px rgba(32,27,22,.08);padding:20px;display:flex;flex-direction:column}.ds-kpi-label{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#7a7066;font-weight:600;font-family:\"Inter\",system-ui,sans-serif}.ds-kpi-value{font-family:\"Space Grotesk\",\"Inter\",system-ui,sans-serif;font-size:34px;font-weight:600;line-height:1;letter-spacing:-.02em;margin-top:14px;color:#201b16;font-variant-numeric:tabular-nums}.ds-kpi-bs{font-family:\"JetBrains Mono\",ui-monospace,monospace;font-size:13px;color:#7a7066;margin-top:10px}"
+    },
+    {
+      "name": "Tasa BCV Chip",
+      "kind": "chip",
+      "refersTo": "tasa-chip",
+      "description": "Tasa del día en la topbar; mono naranja sobre tenue.",
+      "html": "<span class=\"ds-tasa\"><span class=\"ds-tasa-label\">Tasa BCV</span>42,50</span>",
+      "css": ".ds-tasa{display:inline-flex;align-items:center;gap:7px;font-family:\"JetBrains Mono\",ui-monospace,monospace;font-size:13.5px;font-weight:600;color:#a8460a;background:#fbe3cf;border:1px solid rgba(232,106,23,.3);border-radius:14px;padding:5px 12px}.ds-tasa-label{font-family:\"Inter\",system-ui,sans-serif;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#7a7066;font-weight:600}"
+    },
+    {
+      "name": "Comanda Card (kanban)",
+      "kind": "custom",
+      "refersTo": "card-kpi",
+      "description": "La unidad más importante de la cocina: número grande, cliente, tiempo, productos y carril de estado.",
+      "html": "<article class=\"ds-order\"><div class=\"ds-order-top\"><span class=\"ds-order-no\">#42</span><span class=\"ds-order-time\">12:45</span></div><span class=\"ds-order-name\">Mar\u00eda L\u00f3pez</span><ul class=\"ds-order-items\"><li><span>Hamburguesa Esquina</span><span>$5,50</span></li><li><span>Papas extra</span><span>$3,50</span></li></ul><span class=\"ds-badge ds-badge-warn\"><span class=\"ds-badge-dot\"></span>Montar</span></article>",
+      "css": ".ds-order{box-sizing:border-box;background:#fff;border:1px solid #ddd4c7;border-left:4px solid #e86a17;border-radius:20px;box-shadow:0 1px 2px rgba(32,27,22,.06),0 1px 3px rgba(32,27,22,.08);padding:20px;font-family:\"Inter\",system-ui,sans-serif}.ds-order-top{display:flex;align-items:baseline;justify-content:space-between}.ds-order-no{font-family:\"Space Grotesk\",\"Inter\",system-ui,sans-serif;font-size:30px;font-weight:600;line-height:1;letter-spacing:-.02em;color:#201b16;font-variant-numeric:tabular-nums}.ds-order-time{font-family:\"JetBrains Mono\",ui-monospace,monospace;font-size:12.5px;color:#7a7066}.ds-order-name{display:block;font-size:14px;font-weight:600;color:#4a423a;margin-top:4px}.ds-order-items{list-style:none;margin:12px 0 0;padding:0;border-top:1px solid #ddd4c7}.ds-order-items li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #ddd4c7;font-size:14px;color:#4a423a}.ds-order-items li span:last-child{font-family:\"Space Grotesk\",\"Inter\",system-ui,sans-serif;font-size:14px;font-weight:600;color:#201b16;font-variant-numeric:tabular-nums}.ds-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:5px 11px;margin-top:12px;background:#fbe3cf;color:#a8460a}.ds-badge .ds-badge-dot{width:6px;height:6px;border-radius:50%;background:#e86a17}.ds-badge-warn{background:#fcf0d9;color:#c77c08}.ds-badge-warn .ds-badge-dot{background:#c77c08}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Cocina operativa premium — más aire, mismo fuego",
+    "overview": "\"La Esquina del Sabor\" es el panel de mando de una cocina de comida rápida venezolana: tres roles trabajando en paralelo (cocina, recepción, gerencia), muchos pedidos simultáneos, y dinero real en dos monedas. El sistema visual hereda una estética de cocina bien organizada en hora pico — cada cosa en su lugar, legible a distancia de un vistazo — y la refina hacia un acabado más limpio y despejado: se conserva el calor del naranja de marca y el orden de la cuadrícula, pero se gana aire. Menos ruido, más respiración, la misma precisión de un sistema que cobra en bolívares. La personalidad es operativa, nunca decorativa: este no es un menú bonito para el cliente final ni un dashboard genérico de SaaS, sino el escritorio de quien cocina y cobra. El dinero manda y se lee como se lee un comprobante: el monto en USD es protagonista tipográfico; su par en Bs le sigue en mono, discreto pero siempre presente. El naranja es herramienta — botón primario, estado \"Montar\", tasa BCV — no relleno. La profundidad se logra por tonos de superficie cálidos y sombras cortas de POS sobre la mesa, nunca por niebla.",
+    "keyCharacteristics": [
+      "Calor, orden y aire: un naranja funcional, cuadrícula firme y respiración entre módulos.",
+      "El dinero siempre en par USD + Bs, tipografía display tabular para números que mandan.",
+      "Curvas contextuales: 8px micro, 14px inputs y botones, 20px tarjetas, pill para badges.",
+      "Sombras cortas y definidas; la profundidad se lee por tesitura de superficie (sunken vs white).",
+      "Un solo foco naranja por pantalla y una única acción primaria sólida por vista.",
+      "Legible a distancia de cocina, respetuoso de prefers-reduced-motion."
+    ],
+    "rules": [
+      {
+        "name": "The Calor Pointer Rule",
+        "body": "El naranja de marca es funcional, no decorativo: aparece como tinta o borde sobre superficie clara, señala una sola cosa por pantalla (la acción primaria, la comanda \"Montar\", la tasa BCV) y cubre ≤10% del viewport. Nunca se pinta una tarjeta entera de naranja.",
+        "section": "colors"
+      },
+      {
+        "name": "The Estado Pair Rule",
+        "body": "Los estados de comanda se distinguen por color Y por palabra: Montar = naranja, Entrega = ámbar, Cobrar = azul, Pagada = verde, Crédito = rojo tierra. Un badge claro usa su tono tenue de fondo con tinta oscura del mismo color (nunca el color pleno sobre su tenue).",
+        "section": "colors"
+      },
+      {
+        "name": "The Money Pair Rule",
+        "body": "Todo monto se presenta en par: el valor USD en Display tabular sobre warm-ink, y debajo, en línea menor y mono stone, su equivalente en Bs. Ningún número de dinero aparece como texto común, y ningún monto queda sin su par.",
+        "section": "typography"
+      },
+      {
+        "name": "The Numbers Lead Rule",
+        "body": "N.° de comanda, precios y contadores son los únicos elementos display a gran tamaño; columnas monetarias siempre alineadas a la derecha y font-variant-numeric: tabular-nums.",
+        "section": "typography"
+      },
+      {
+        "name": "The Aire Rule",
+        "body": "El aire es parte del sistema, no espacio muerto: se respeta el ritmo 8/16/24/28 ante cualquier interrogación de densidad. Cuando falta espacio, se reorganiza (apilar, recortar) antes de reducir padding o fuente.",
+        "section": "layout"
+      },
+      {
+        "name": "The Tabletop Rule",
+        "body": "Las sombras son cortas y su start-up es la tinta cálida (no negro puro); el cambio de elevación responde a estado (destacar, notificar), nunca es decorativo. La \"cavidad\" (sunken) se usa para el plano de reposo y el hover de patada, sin sombra.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Rail Rule",
+        "body": "El carril izquierdo de 3px del color del estado es la señal estructural de una comanda; no se sustituye por color de relleno ni se borra al apilar.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do usar Display tabular (Space Grotesk 600) para N.° de comanda, precios y KPIs — nunca texto común para dinero.",
+      "Do mostrar el par USD (Display warm-ink) + Bs (mono stone) en todo importe.",
+      "Do respetar los radios contextuales: 8px micro, 14px inputs/botones, 20px tarjetas, pill badges.",
+      "Do dejar respirar: tarjetas 20px, canal 28px, ritmo de sección 24px, filas 48–56px.",
+      "Do mantener una sola acción primaria sólida y un solo foco naranja por vista.",
+      "Do pintar el carril izquierdo de 3px con el color del estado en cada tarjeta de comanda.",
+      "Do incluir :focus-visible (anillo naranja 3px translúcido) en todo interactivo y respetar prefers-reduced-motion.",
+      "Do usar estados por color Y por palabra (Montar/Entrega/Cobrar/Pagada/Crédito)."
+    ],
+    "donts": [
+      "Don't usar blanco puro como canvas raíz: el fondo de página es siempre warm-paper.",
+      "Don't pintar tarjetas de naranja, ni usar degradados, glassmorphism, emojis como iconos o serif de menú nostálgico.",
+      "Don't mostrar un monto sin su par en Bs, ni alineado fuera de columna tabular derecha.",
+      "Don't generar desplazamiento horizontal; bajo 767px las tablas se convierten en tarjetas apiladas.",
+      "Don't quitar el carril de estado ni fundir el estado solo en color de relleno.",
+      "Don't degradar contraste en hover: cambiar fondo/borde/sombra, nunca aclarar el texto.",
+      "Don't duplicar el CTA sólido en el viewport ni añadir un segundo foco naranja."
+    ]
+  }
+}

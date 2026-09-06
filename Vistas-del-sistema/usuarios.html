@@ -3,8 +3,9 @@
   La Esquina del Sabor · Vista 12.1 — Gestión de Usuarios y Permisos
   Administrar usuarios del sistema y configurar permisos granulados por rol.
   Vista Lista (usuarios) + panel de permisos por rol (DESIGN.md §7).
-  Shell común. Solo accesible al Administrador.
+Shell común. Solo accesible al Administrador.
 -->
+<!-- impeccable-disable cramped-padding -- tabla de usuarios pegada al panel tipo tarjeta; patrón idéntico a las demás listas (catalogo/ventas/creditos), sin pager por ser tabla corta -->
 <html lang="es">
 <head>
 <meta charset="utf-8" />
@@ -73,11 +74,9 @@
   .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); background: var(--surface-sunken); }
   .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
 
-  .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
   .f-field { display: flex; flex-direction: column; gap: 5px; }
-  .f-field .f-label { font-size: 12px; font-weight: 600; color: var(--fg-2); }
-  .search-box { flex: 1; min-width: 170px; position: relative; }
-  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
+.f-field .f-label { font-size: 12px; font-weight: 600; color: var(--fg-2); }
   .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 9px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
   .input-brand { width: 100%; padding-left: 34px; }
   .select-brand { width: auto; min-width: 140px; }
@@ -151,14 +150,14 @@
   @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
   @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } }
-  @media (max-width: 767.98px) { .filter-bar { flex-direction: column; align-items: stretch; } .select-brand { width: 100%; min-width: 0; } table.usr { min-width: 640px; } }
+  @media (max-width: 767.98px) { .filter-card { flex-direction: column; align-items: stretch; } .select-brand { width: 100%; min-width: 0; } table.usr { min-width: 640px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -191,8 +190,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -203,7 +202,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <div class="page-head">
           <div>
             <p class="page-eyebrow">Sistema · Seguridad</p>
@@ -304,7 +303,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modal-surface">
         <div class="modal-header modal-header-brand">
-          <h5 class="modal-title fs-6 fw-bold">Nuevo usuario</h5>
+          <h3 class="modal-title fs-6 fw-bold">Nuevo usuario</h3>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">

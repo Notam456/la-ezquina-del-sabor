@@ -2,7 +2,7 @@
 <!--
   La Esquina del Sabor · Vista 9.1 — Lista de Créditos
   Seguimiento de créditos (fiado): cliente, fecha, total, abonado, saldo, estado.
-  Vista Lista (DESIGN.md §7). Shell común.
+  Vista Lista (DESIGN.md §7). Shell común en assets/app.css.
 -->
 <html lang="es">
 <head>
@@ -12,56 +12,13 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-
-  <link rel="stylesheet" href="assets/app.css" />
+<link rel="stylesheet" href="assets/app.css" />
 
 <style>
-  
 
-  *, *::before, *::after { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-  a { color: inherit; text-decoration: none; }
-  .tabular { font-variant-numeric: tabular-nums; }
-
-  .app-shell { display: flex; min-height: 100vh; }
-  .sidebar { width: var(--sidebar-w); flex: 0 0 var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; height: 100dvh; }
-  .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
-  .sidebar-logo { width: 40px; height: 40px; flex: 0 0 auto; border-radius: 12px; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
-  .sidebar-logo i { font-size: 19px; }
-  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
-  .sidebar-name span { color: var(--accent); }
-  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
-  .nav-section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); padding: 10px 12px 6px; }
-  .nav-item { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 0; background: transparent; color: var(--fg-2); font-size: 14px; font-weight: 500; text-align: left; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out); }
-  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-out); }
-  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
-  .nav-item:hover i { color: var(--fg-2); }
-  .nav-item.active { background: var(--accent-soft); color: var(--fg); border-left: 3px solid var(--accent); padding-left: 9px; }
-  .nav-item.active i { color: var(--accent-ghost); }
-  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
-  .user-chip { display: flex; align-items: center; gap: 11px; }
-  .user-avatar { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-ghost); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
-  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
-  .user-role { font-size: 12.5px; color: var(--muted); }
-
-  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .topbar { height: var(--topbar-h); flex: 0 0 var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px; position: sticky; top: 0; z-index: 10; }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
-  .tasa-chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: var(--radius-md); padding: 5px 12px; }
-  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
-  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .work-status.open { color: var(--success); background: var(--success-soft); }
-  .work-status.open .dot { background: var(--success); }
+  /* ── Solo estilos propios de esta vista: KPIs y tabla de créditos ── */
 
   .content { padding: 24px; padding-bottom: 40px; }
-  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
-  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
-  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
 
   .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
   .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 16px 18px; }
@@ -70,19 +27,23 @@
   .kpi .val.debe { color: var(--danger); }
   .kpi .val.ok { color: var(--success); }
 
-  .filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  .search-box { position: relative; flex: 1; min-width: 200px; }
-  .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; }
-  .input-brand, .select-brand { background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius-md); padding: 9px 12px; font-size: 14px; color: var(--fg); font-family: var(--font-sans); transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out); }
-  .input-brand { width: 100%; padding-left: 34px; }
+  .filter-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--elev-1);
+    padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
   .select-brand { width: auto; min-width: 140px; }
-  .input-brand:focus, .select-brand:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
   .filter-count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-left: auto; white-space: nowrap; }
 
   .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--elev-1); overflow: hidden; }
-  .table-responsive { overflow-x: auto; }
   table.cr { width: 100%; border-collapse: collapse; font-size: 14px; }
-  table.cr thead th { position: sticky; top: 0; background: var(--bg); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--meta); text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.cr thead th {
+    position: sticky; top: 0; background: var(--bg);
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--meta); text-align: left; padding: 11px 14px;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
   table.cr tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   table.cr tbody tr:last-child td { border-bottom: 0; }
   table.cr tbody tr { transition: background var(--motion-fast) var(--ease-out); cursor: pointer; }
@@ -94,45 +55,37 @@
   .cli-name .n { font-weight: 600; color: var(--fg); }
   .cli-name .d { font-size: 12px; color: var(--muted); }
   .fecha { font-family: var(--font-mono); font-size: 13px; color: var(--fg-2); }
-  .usd { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .bs { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .usd { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .bs { font-size: 12px; }
   .aude { font-family: var(--font-display); font-weight: 600; color: var(--success); font-variant-numeric: tabular-nums; }
   .sald { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
   .sald.debe { color: var(--danger); }
+  .sald.pagado { color: var(--success); }
   .sald .bs { display: block; font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); font-weight: 500; }
+
   .estado { font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
   .estado.pendiente { background: var(--warn-soft); color: var(--warn); }
   .estado.pagado { background: var(--success-soft); color: var(--success); }
-  .prebar { width: 90px; height: 6px; background: var(--surface-sunken); border-radius: 999px; overflow: hidden; display: inline-block; vertical-align: middle; margin-left: 6px; }
-  .prebar > div { height: 100%; background: var(--success); border-radius: 999px; }
-  .row-actions { display: inline-flex; gap: 4px; }
-  .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid transparent; background: transparent; color: var(--muted); display: inline-grid; place-items: center; font-size: 14px; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
-  .icon-btn:hover { background: var(--surface-sunken); color: var(--fg); border-color: var(--border-strong); }
-  .icon-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
-  .icon-btn.abonar { color: var(--success); }
-  .icon-btn.abonar:hover { border-color: var(--success); color: var(--success); background: var(--success-soft); }
 
-  .pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
-  .pager-info { font-size: 13px; color: var(--muted); }
-  .pager-info strong { color: var(--fg); font-family: var(--font-mono); }
-  .pager-controls { display: flex; gap: 6px; }
-  .page-btn { min-width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--fg-2); font-weight: 600; font-size: 13px; display: inline-grid; place-items: center; cursor: pointer; transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
-  .page-btn:hover:not(:disabled):not(.current) { border-color: var(--fg-2); color: var(--fg); }
-  .page-btn:focus-visible { box-shadow: var(--focus-ring); outline: none; }
-  .page-btn.current { background: var(--accent); border-color: var(--accent); color: var(--surface); }
-  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .icon-btn.abonar { color: var(--success); }
+  .icon-btn.abonar:hover { background: var(--success-soft); color: var(--success); }
 
   .vacio { padding: 48px 20px; text-align: center; color: var(--meta); font-size: 14px; }
 
-  @media (max-width: 991.98px) { .sidebar { display: none; } .content { padding: 20px; } .topbar { padding: 0 16px; } .kpi-row { grid-template-columns: 1fr; } }
-  @media (max-width: 767.98px) { .filter-bar { flex-direction: column; align-items: stretch; } .select-brand { width: 100%; min-width: 0; } .filter-count { margin-left: 0; } table.cr { min-width: 720px; } }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  @media (max-width: 991.98px) { .kpi-row { grid-template-columns: 1fr; } }
+  @media (max-width: 767.98px) {
+    .filter-card { flex-direction: column; align-items: stretch; }
+    .select-brand { width: 100%; min-width: 0; }
+    .filter-count { margin-left: 0; }
+    table.cr { min-width: 720px; }
+  }
+
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -165,8 +118,8 @@
       </div>
     </aside>
 
-    <div class="main">
-      <header class="topbar" data-od-id="topbar">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -177,7 +130,7 @@
         </div>
       </header>
 
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
         <div class="page-head">
           <div>
             <p class="page-eyebrow">Operación · Fiado</p>
@@ -187,12 +140,12 @@
         </div>
 
         <div class="kpi-row" data-od-id="kpis">
-          <div class="kpi"><div class="lab">Créditos pendientes</div><div class="val debe tabular">3</div></div>
+          <div class="kpi"><div class="lab">Créditos pendientes</div><div class="val debe tabular">2</div></div>
           <div class="kpi"><div class="lab">Total por cobrar</div><div class="val debe tabular">$ 73,50</div></div>
-          <div class="kpi"><div class="lab">Créditos al día</div><div class="val ok tabular">2</div></div>
+          <div class="kpi"><div class="lab">Créditos al día</div><div class="val ok tabular">3</div></div>
         </div>
 
-        <div class="filter-bar" data-od-id="filtros">
+        <div class="filter-card" data-od-id="filtros">
           <div class="search-box">
             <i class="bi bi-search"></i>
             <input type="text" class="input-brand" id="buscar" placeholder="Buscar por cliente…" aria-label="Buscar por cliente" />
@@ -216,7 +169,7 @@
                   <th class="col-num">Abonado</th>
                   <th class="col-num">Saldo pendiente</th>
                   <th>Estado</th>
-                  <th style="text-align:right;">Acciones</th>
+                  <th class="text-end">Acciones</th>
                 </tr>
               </thead>
               <tbody id="tbody">
@@ -224,7 +177,7 @@
                   <td>
                     <div class="cli-name">
                       <span class="cli-avatar">CP</span>
-                      <div class="n">Carlos Páez <span style="font-size:11px;color:var(--muted);">(2 créditos)</span></div>
+                      <div class="n">Carlos Páez <span class="d">(1 crédito)</span></div>
                     </div>
                   </td>
                   <td><span class="fecha">02/09/2026</span></td>
@@ -233,7 +186,7 @@
                   <td class="col-num"><span class="sald debe">$ 45,00<span class="bs">Bs 1.912,50</span></span></td>
                   <td><span class="estado pendiente">Pendiente</span></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn abonar" data-act="abono" title="Registrar abono"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
                     </div>
@@ -247,20 +200,20 @@
                       <div class="n">Rosa Pérez</div>
                     </div>
                   </td>
-                  <td><span class="fecha">02/09/2026</span></td>
+                  <td><span class="fecha">01/09/2026</span></td>
                   <td class="col-num"><span class="usd">$ 28,50</span><br><span class="bs">Bs 1.211,25</span></td>
                   <td class="col-num"><span class="aude">$ 0,00</span></td>
                   <td class="col-num"><span class="sald debe">$ 28,50<span class="bs">Bs 1.211,25</span></span></td>
                   <td><span class="estado pendiente">Pendiente</span></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn abonar" data-act="abono" title="Registrar abono"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
                     </div>
                   </td>
                 </tr>
 
-                <tr data-nombre="mariana rios" data-estado="pendiente">
+                <tr data-nombre="mariana rios" data-estado="pagado">
                   <td>
                     <div class="cli-name">
                       <span class="cli-avatar">MR</span>
@@ -270,10 +223,10 @@
                   <td><span class="fecha">29/08/2026</span></td>
                   <td class="col-num"><span class="usd">$ 30,00</span><br><span class="bs">Bs 1.275,00</span></td>
                   <td class="col-num"><span class="aude">$ 30,00</span></td>
-                  <td class="col-num"><span class="sald debe">$ 0,00<span class="bs">Bs 0,00</span></span></td>
-                  <td><span class="estado pendiente">Pendiente</span></td>
+                  <td class="col-num"><span class="sald pagado">$ 0,00<span class="bs">Pagado</span></span></td>
+                  <td><span class="estado pagado">Pagado</span></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn abonar" data-act="abono" title="Registrar abono"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
                     </div>
@@ -290,10 +243,10 @@
                   <td><span class="fecha">25/08/2026</span></td>
                   <td class="col-num"><span class="usd">$ 20,00</span><br><span class="bs">Bs 850,00</span></td>
                   <td class="col-num"><span class="aude">$ 20,00</span></td>
-                  <td class="col-num"><span class="sald" style="color:var(--success);">$ 0,00<span class="bs">Pagado</span></span></td>
+                  <td class="col-num"><span class="sald pagado">$ 0,00<span class="bs">Pagado</span></span></td>
                   <td><span class="estado pagado">Pagado</span></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn abonar" data-act="abono" title="Registrar abono"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
                     </div>
@@ -310,10 +263,10 @@
                   <td><span class="fecha">18/08/2026</span></td>
                   <td class="col-num"><span class="usd">$ 14,00</span><br><span class="bs">Bs 595,00</span></td>
                   <td class="col-num"><span class="aude">$ 14,00</span></td>
-                  <td class="col-num"><span class="sald" style="color:var(--success);">$ 0,00<span class="bs">Pagado</span></span></td>
+                  <td class="col-num"><span class="sald pagado">$ 0,00<span class="bs">Pagado</span></span></td>
                   <td><span class="estado pagado">Pagado</span></td>
                   <td>
-                    <div class="row-actions" style="display:flex; justify-content:flex-end;">
+                    <div class="row-actions justify-content-end">
                       <button type="button" class="icon-btn abonar" data-act="abono" title="Registrar abono"><i class="bi bi-cash-stack"></i></button>
                       <button type="button" class="icon-btn" data-act="detalle" title="Ver detalle"><i class="bi bi-eye"></i></button>
                     </div>

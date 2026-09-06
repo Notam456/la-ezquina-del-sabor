@@ -3,6 +3,7 @@
   La Esquina del Sabor · Vista 2.1 — Dashboard / Panel Principal
   Resumen del estado del negocio durante la jornada.
   Basado en Bootstrap 5 con los tokens de brand de DESIGN.md.
+  El shell común (sidebar, topbar, botones, KPI, paneles, badges) vive en assets/app.css.
 -->
 <html lang="es">
 <head>
@@ -14,219 +15,12 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
 
-  <link rel="stylesheet" href="assets/app.css" />
+<link rel="stylesheet" href="assets/app.css" />
 
 <style>
-  
 
-  *, *::before, *::after { box-sizing: border-box; }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--bg);
-    color: var(--fg);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-  }
-  a { color: inherit; text-decoration: none; }
+  /* ── Solo estilos propios de esta vista ──────────────────────── */
 
-  /* ── Estructura app: topbar + sidebar + contenido ─────────────── */
-  .app-shell { display: flex; min-height: 100vh; }
-
-  .sidebar {
-    width: var(--sidebar-w);
-    flex: 0 0 var(--sidebar-w);
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    height: 100dvh;
-  }
-  .sidebar-brand {
-    display: flex; align-items: center; gap: 12px;
-    padding: 18px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .sidebar-logo {
-    width: 40px; height: 40px; flex: 0 0 auto;
-    border-radius: 12px;
-    background: var(--accent);
-    display: grid; place-items: center;
-    color: var(--surface);
-  }
-  .sidebar-logo i { font-size: 19px; }
-  .sidebar-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
-  .sidebar-name span { color: var(--accent); }
-
-  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 12px; }
-  .nav-section-label {
-    font-family: var(--font-mono);
-    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--meta);
-    padding: 10px 12px 6px;
-  }
-  .nav-item {
-    display: flex; align-items: center; gap: 11px;
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 0;
-    background: transparent;
-    color: var(--fg-2);
-    font-size: 14px; font-weight: 500;
-    text-align: left;
-    transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
-  }
-  .nav-item i { font-size: 16px; color: var(--muted); flex: 0 0 auto; width: 20px; text-align: center; transition: color var(--motion-fast) var(--ease-standard); }
-  .nav-item:hover { background: var(--surface-sunken); color: var(--fg); }
-  .nav-item:hover i { color: var(--fg-2); }
-  .nav-item.active {
-    background: var(--accent-soft);
-    color: var(--fg);
-    border-left: 3px solid var(--accent);
-    padding-left: 9px;
-  }
-  .nav-item.active i { color: var(--accent-ghost); }
-  .nav-item:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .nav-item .badge-right { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-  .nav-item.active .badge-right { color: var(--accent-ghost); }
-
-  .sidebar-foot { border-top: 1px solid var(--border); padding: 14px 20px; }
-  .user-chip { display: flex; align-items: center; gap: 11px; }
-  .user-avatar {
-    width: 38px; height: 38px; flex: 0 0 auto;
-    border-radius: 50%;
-    background: var(--accent-ghost);
-    color: var(--surface);
-    display: grid; place-items: center;
-    font-weight: 700; font-size: 14px;
-  }
-  .user-name { font-size: 14px; font-weight: 600; line-height: 1.15; }
-  .user-role { font-size: 12.5px; color: var(--muted); }
-
-  /* Contenido */
-  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-
-  .topbar {
-    height: var(--topbar-h);
-    flex: 0 0 var(--topbar-h);
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px;
-    padding: 0 20px;
-    position: sticky; top: 0; z-index: 10;
-  }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .topbar-date { font-size: 13.5px; color: var(--fg-2); }
-  .topbar-date strong { color: var(--fg); font-weight: 600; }
-
-  .tasa-chip {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-family: var(--font-mono);
-    font-size: 13.5px; font-weight: 600;
-    color: var(--accent-ghost);
-    background: var(--accent-soft);
-    border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent);
-    border-radius: var(--radius-md);
-    padding: 5px 12px;
-  }
-  .tasa-chip .tasa-label { font-family: var(--font-sans); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  .btn-tasa {
-    border: 0; background: transparent;
-    color: var(--muted);
-    width: 22px; height: 22px;
-    display: grid; place-items: center;
-    border-radius: 7px;
-    transition: color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
-  }
-  .btn-tasa:hover { color: var(--accent-strong); background: color-mix(in oklab, var(--accent) 10%, transparent); }
-  .btn-tasa:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-  .btn-tasa i { font-size: 12px; }
-
-  .topbar-right { display: flex; align-items: center; gap: 10px; }
-
-  .work-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
-  .work-status .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .work-status.open { color: var(--success); background: var(--success-soft); }
-  .work-status.open .dot { background: var(--success); }
-  .work-status.closed { color: var(--info); background: var(--info-soft); }
-  .work-status.closed .dot { background: var(--info); }
-
-  .btn-jornada {
-    border: 1.5px solid var(--border-strong);
-    background: var(--surface);
-    color: var(--fg-2);
-    font-size: 13px; font-weight: 600;
-    border-radius: var(--radius-md);
-    padding: 6px 14px;
-    display: inline-flex; align-items: center; gap: 7px;
-    transition: border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
-  }
-  .btn-jornada:hover { border-color: var(--fg-2); color: var(--fg); }
-  .btn-jornada:focus-visible { box-shadow: var(--focus-ring); }
-
-  .content { padding: 28px; }
-
-  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
-  .page-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-ghost); margin-bottom: 6px; }
-  .page-title { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; margin: 0; color: var(--fg); }
-  .page-sub { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
-
-  .btn-primary-brand {
-    background-color: var(--accent);
-    border: 0; color: var(--surface);
-    font-weight: 600; font-size: 14.5px;
-    border-radius: var(--radius-md);
-    padding: 11px 20px;
-    display: inline-flex; align-items: center; gap: 9px;
-    transition: background var(--motion-fast) var(--ease-standard), transform 0.05s ease;
-  }
-  .btn-primary-brand:hover { background-color: var(--accent-strong); color: var(--surface); }
-  .btn-primary-brand:active { transform: scale(.985); }
-  .btn-primary-brand:focus-visible { box-shadow: var(--focus-ring); color: var(--surface); }
-
-  .btn-ghost-brand {
-    background: transparent; border: 1.5px solid var(--border-strong);
-    color: var(--fg-2); font-weight: 600; font-size: 14px;
-    border-radius: var(--radius-md); padding: 10px 16px;
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: border-color var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
-  }
-  .btn-ghost-brand:hover { border-color: var(--fg-2); color: var(--fg); }
-  .btn-ghost-brand:focus-visible { box-shadow: var(--focus-ring); }
-
-  /* Tarjetas KPI */
-  .card-kpi {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--elev-1);
-    padding: 20px;
-    height: 100%;
-    display: flex; flex-direction: column;
-  }
-  .kpi-label { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  .kpi-label i { font-size: 14px; }
-  .kpi-value { font-family: var(--font-display); font-size: 34px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; margin-top: 14px; color: var(--fg); }
-  .kpi-value .unit { font-size: 15px; color: var(--muted); font-weight: 500; letter-spacing: 0; }
-  .kpi-meta { font-size: 12.5px; color: var(--muted); margin-top: 10px; display: flex; align-items: center; gap: 6px; }
-  .kpi-meta .kpi-bs { font-family: var(--font-mono); color: var(--muted); }
-
-  .card-kpi.accent {
-    border-color: color-mix(in oklab, var(--accent) 45%, transparent);
-    box-shadow: var(--elev-2);
-  }
-  .card-kpi.accent .kpi-label { color: var(--accent-ghost); }
-  .card-kpi.accent .kpi-value { color: var(--accent-strong); }
-
-  .trend-up { color: var(--success); }
-  .trend-down { color: var(--danger); }
-
-  /* Comandas activas */
   .panel-comandas {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -234,9 +28,7 @@
     box-shadow: var(--elev-1);
     overflow: hidden;
   }
-  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
-  .panel-title { font-size: 16px; font-weight: 700; letter-spacing: -0.005em; margin: 0; color: var(--fg); }
-  .panel-title .count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 6px; }
+
   .panel-link { font-size: 13.5px; font-weight: 600; color: var(--accent-ghost); }
   .panel-link:hover { color: var(--accent-strong); text-decoration: underline; }
   .panel-link:focus-visible { box-shadow: var(--focus-ring); border-radius: 6px; }
@@ -245,10 +37,11 @@
     display: flex; align-items: center; gap: 16px;
     padding: 16px 20px;
     border-bottom: 1px solid var(--border);
-    transition: background var(--motion-fast) var(--ease-standard);
+    transition: background var(--motion-fast) var(--ease-out);
   }
   .comanda-row:last-child { border-bottom: 0; }
   .comanda-row:hover { background: var(--surface-sunken); }
+
   .comanda-num {
     font-family: var(--font-display);
     font-size: 22px; font-weight: 600;
@@ -260,23 +53,12 @@
   .comanda-cliente { font-size: 14px; font-weight: 600; line-height: 1.2; }
   .comanda-cliente .glyph { color: var(--muted); font-weight: 400; }
   .comanda-meta { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
-  .comanda-meta .tipo { font-weight: 600; }
+  .comanda-meta .tipo { font-weight: 600; color: var(--fg-2); }
+  .comanda-meta .tipo.fiado { color: var(--warn); }
+
   .comanda-total { text-align: right; flex: 0 0 auto; }
   .comanda-total .usd { font-family: var(--font-display); font-size: 18px; font-weight: 600; line-height: 1.1; color: var(--fg); }
   .comanda-total .bs { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
-
-  .badge-estado {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-    border-radius: 999px; padding: 5px 11px;
-    display: inline-flex; align-items: center; gap: 6px;
-  }
-  .badge-estado .dot { width: 6px; height: 6px; border-radius: 50%; }
-  .badge-estado.montar { background: var(--accent-soft); color: var(--accent-ghost); }
-  .badge-estado.montar .dot { background: var(--accent); }
-  .badge-estado.entrega { background: var(--warn-soft); color: var(--warn); }
-  .badge-estado.entrega .dot { background: var(--warn); }
-  .badge-estado.cobrar { background: var(--info-soft); color: var(--info); }
-  .badge-estado.cobrar .dot { background: var(--info); }
 
   .btn-row-open {
     border: 0; background: transparent;
@@ -284,41 +66,45 @@
     width: 34px; height: 34px;
     display: grid; place-items: center;
     border-radius: 10px;
-    transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+    transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
   }
   .btn-row-open:hover { background: var(--accent-soft); color: var(--accent-ghost); }
   .btn-row-open:focus-visible { box-shadow: var(--focus-ring); }
 
-  /* Tasa destacada panel lateral */
+  /* Tasa destacada en lateral oscuro */
   .panel-tasa { background: var(--footer-bg); color: var(--bg); border-radius: var(--radius-lg); padding: 22px; }
   .panel-tasa-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: color-mix(in oklab, var(--bg) 55%, transparent); }
   .panel-tasa-value { font-family: var(--font-mono); font-size: 30px; font-weight: 600; color: var(--bg); margin-top: 10px; letter-spacing: -0.01em; }
   .panel-tasa-value span { font-size: 15px; color: color-mix(in oklab, var(--bg) 60%, transparent); }
   .panel-tasa-update { margin-top: 16px; }
 
-  .modal-surface { background: var(--surface); color: var(--fg); border-radius: var(--radius-lg); }
-  .modal-header-brand, .modal-footer-brand { border-color: var(--border); }
-  .modal-footer-brand { padding: 14px 20px; }
+  .btn-ghost-on-dark {
+    background: transparent;
+    border: 1.5px solid color-mix(in oklab, var(--bg) 25%, transparent);
+    color: var(--bg);
+  }
+  .btn-ghost-on-dark:hover { border-color: var(--bg); color: var(--bg); }
+
+  /* Complemento de input-group con tokens */
+  .input-brand-addon {
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--muted);
+  }
 
   @media (max-width: 991.98px) {
-    .sidebar { display: none; }
-    .content { padding: 20px; }
-    .topbar { padding: 0 14px; }
     .topbar-date span.d-md { display: none; }
     .comanda-row { flex-wrap: wrap; gap: 10px; }
     .comanda-total { text-align: left; }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; transition: none !important; }
-  }
 </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell d-flex vh-100 overflow-hidden">
 
     <!-- Menú lateral -->
-    <aside class="sidebar" data-od-id="sidebar">
+    <aside class="sidebar d-flex flex-column flex-shrink-0" data-od-id="sidebar">
       <div class="sidebar-brand">
         <span class="sidebar-logo" aria-hidden="true"><i class="bi bi-fire"></i></span>
         <span class="sidebar-name">La Esquina <span>del Sabor</span></span>
@@ -330,7 +116,7 @@
         <button class="nav-item" type="button" data-module="comandas"><i class="bi bi-receipt"></i>Comandas</button>
         <button class="nav-item" type="button" data-module="cocina"><i class="bi bi-fire"></i>Cocina</button>
         <button class="nav-item" type="button" data-module="ventas"><i class="bi bi-graph-up"></i>Ventas e histórico</button>
-        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos<span class="badge-right">3</span></button>
+        <button class="nav-item" type="button" data-module="creditos"><i class="bi bi-cash-stack"></i>Créditos<span class="badge-right">2</span></button>
 
         <div class="nav-section-label">Gestión</div>
         <button class="nav-item" type="button" data-module="catalogo"><i class="bi bi-basket"></i>Catálogo</button>
@@ -356,10 +142,10 @@
     </aside>
 
     <!-- Contenido principal -->
-    <div class="main">
+    <div class="main d-flex flex-column flex-grow-1 overflow-hidden">
 
       <!-- Barra superior -->
-      <header class="topbar" data-od-id="topbar">
+      <header class="topbar flex-shrink-0" data-od-id="topbar">
         <div class="topbar-left">
           <button type="button" class="btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-label="Abrir menú"><i class="bi bi-list fs-4"></i></button>
           <span class="topbar-date"><strong class="d-md-none">La Esquina del Sabor ·</strong> <span>Miércoles</span>, <span id="todayDate">2 de septiembre de 2026</span></span>
@@ -377,11 +163,11 @@
       </header>
 
       <!-- Contenido -->
-      <main class="content" data-od-id="content">
+      <main class="content flex-grow-1 overflow-auto" data-od-id="content">
 
         <div class="page-head">
           <div>
-            <p class="page-eyebrow">Panel del día · Vista general</p>
+            <p class="page-eyebrow">Panel del día</p>
             <h1 class="page-title">Resumen de la jornada</h1>
             <p class="page-sub">Estado actual del negocio y comandas activas en tiempo real.</p>
           </div>
@@ -395,29 +181,29 @@
           <div class="col-6 col-lg-3">
             <div class="card-kpi accent">
               <div class="kpi-label"><i class="bi bi-bank"></i> Ventas del día</div>
-              <div class="kpi-value">$ 148,75 <span class="unit">USD</span></div>
-              <div class="kpi-meta"><span class="kpi-bs">Bs 6.321,88</span> <span class="trend-up"><i class="bi bi-arrow-up-right"></i> +12%</span></div>
+              <div class="kpi-value">$ 111,25 <span class="unit">USD</span></div>
+              <div class="kpi-meta"><span class="kpi-bs">Bs 4.728,13</span> <span class="trend-up"><i class="bi bi-arrow-up-right"></i> +12%</span></div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
             <div class="card-kpi">
               <div class="kpi-label"><i class="bi bi-receipt"></i> Comandas activas</div>
-              <div class="kpi-value">7</div>
-              <div class="kpi-meta">4 en preparación · 2 entrega · 1 por cobrar</div>
+              <div class="kpi-value">6</div>
+              <div class="kpi-meta">4 en preparación · 1 entrega · 1 por cobrar</div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
             <div class="card-kpi">
               <div class="kpi-label"><i class="bi bi-people"></i> Clientes atendidos</div>
-              <div class="kpi-value">63</div>
+              <div class="kpi-value">6</div>
               <div class="kpi-meta"><span class="trend-up"><i class="bi bi-arrow-up-right"></i> +8%</span> vs ayer</div>
             </div>
           </div>
           <div class="col-6 col-lg-3">
             <div class="card-kpi">
               <div class="kpi-label"><i class="bi bi-cash-stack"></i> Créditos pendientes</div>
-              <div class="kpi-value">3</div>
-              <div class="kpi-meta"><span class="kpi-bs">Bs 245,60</span> · por cobrar</div>
+              <div class="kpi-value">2</div>
+              <div class="kpi-meta"><span class="kpi-bs">Bs 3.123,75</span> · por cobrar</div>
             </div>
           </div>
         </div>
@@ -427,7 +213,7 @@
           <div class="col-12 col-xl-8">
             <div class="panel-comandas" data-od-id="panel-comandas">
               <div class="panel-head">
-                <h2 class="panel-title">Comandas activas <span class="count" id="comandaCount">7</span></h2>
+                <h2 class="panel-title">Comandas activas <span class="count" id="comandaCount">6</span></h2>
                 <a href="#" class="panel-link" data-module-link="comandas">Ver todas →</a>
               </div>
 
@@ -435,10 +221,10 @@
                 <span class="comanda-num">014</span>
                 <div class="comanda-info">
                   <div class="comanda-cliente">Mariana Ríos <span class="glyph">· Mesa 3</span></div>
-                  <div class="comanda-meta">4 productos · <span class="tipo" style="color:var(--accent-ghost);">Comer aquí</span></div>
+                  <div class="comanda-meta">4 productos · <span class="tipo">Comer aquí</span></div>
                 </div>
                 <span class="badge-estado montar"><span class="dot"></span>Montar</span>
-                <div class="comanda-total"><div class="usd">$ 24,50</div><div class="bs">Bs 1.041,25</div></div>
+                <div class="comanda-total"><div class="usd">$ 18,00</div><div class="bs">Bs 765,00</div></div>
                 <button type="button" class="btn-row-open" aria-label="Abrir comanda 014"><i class="bi bi-chevron-right"></i></button>
               </div>
 
@@ -446,66 +232,55 @@
                 <span class="comanda-num">015</span>
                 <div class="comanda-info">
                   <div class="comanda-cliente">Carlos Páez <span class="glyph">· Llevar</span></div>
-                  <div class="comanda-meta">2 productos · <span class="tipo" style="color:var(--accent-ghost);">Llevar</span></div>
+                  <div class="comanda-meta">4 productos · <span class="tipo fiado">Fiado</span></div>
                 </div>
-                <span class="badge-estado montar"><span class="dot"></span>Montar</span>
-                <div class="comanda-total"><div class="usd">$ 10,00</div><div class="bs">Bs 425,00</div></div>
+                <span class="badge-estado cobrar"><span class="dot"></span>Cobrar</span>
+                <div class="comanda-total"><div class="usd">$ 45,00</div><div class="bs">Bs 1.912,50</div></div>
                 <button type="button" class="btn-row-open" aria-label="Abrir comanda 015"><i class="bi bi-chevron-right"></i></button>
               </div>
 
               <div class="comanda-row">
                 <span class="comanda-num">016</span>
                 <div class="comanda-info">
-                  <div class="comanda-cliente">Delivery <span class="glyph">· 0412-555 1234</span></div>
-                  <div class="comanda-meta">3 productos · <span class="tipo" style="color:var(--warn);">Delivery</span></div>
+                  <div class="comanda-cliente">Ana García <span class="glyph">· Mesa 4</span></div>
+                  <div class="comanda-meta">3 productos · <span class="tipo">Comer aquí</span></div>
                 </div>
-                <span class="badge-estado entrega"><span class="dot"></span>Entrega</span>
-                <div class="comanda-total"><div class="usd">$ 18,75</div><div class="bs">Bs 796,88</div></div>
+                <span class="badge-estado montar"><span class="dot"></span>Montar</span>
+                <div class="comanda-total"><div class="usd">$ 18,00</div><div class="bs">Bs 765,00</div></div>
                 <button type="button" class="btn-row-open" aria-label="Abrir comanda 016"><i class="bi bi-chevron-right"></i></button>
               </div>
 
               <div class="comanda-row">
                 <span class="comanda-num">017</span>
                 <div class="comanda-info">
-                  <div class="comanda-cliente">Andrés Silva <span class="glyph">· Mesa 7</span></div>
-                  <div class="comanda-meta">5 productos · <span class="tipo" style="color:var(--accent-ghost);">Comer aquí</span></div>
+                  <div class="comanda-cliente">José López <span class="glyph">· Llevar</span></div>
+                  <div class="comanda-meta">1 producto · <span class="tipo">Llevar</span></div>
                 </div>
-                <span class="badge-estado entrega"><span class="dot"></span>Entrega</span>
-                <div class="comanda-total"><div class="usd">$ 31,00</div><div class="bs">Bs 1.317,50</div></div>
+                <span class="badge-estado montar"><span class="dot"></span>Montar</span>
+                <div class="comanda-total"><div class="usd">$ 6,50</div><div class="bs">Bs 276,25</div></div>
                 <button type="button" class="btn-row-open" aria-label="Abrir comanda 017"><i class="bi bi-chevron-right"></i></button>
               </div>
 
               <div class="comanda-row">
                 <span class="comanda-num">018</span>
                 <div class="comanda-info">
-                  <div class="comanda-cliente">Luis Torrealba <span class="glyph">· Llevar</span></div>
-                  <div class="comanda-meta">2 productos · <span class="tipo" style="color:var(--accent-ghost);">Llevar</span></div>
+                  <div class="comanda-cliente">Luis Fernández <span class="glyph">· Mesa 2</span></div>
+                  <div class="comanda-meta">2 productos · <span class="tipo">Comer aquí</span></div>
                 </div>
-                <span class="badge-estado montar"><span class="dot"></span>Montar</span>
-                <div class="comanda-total"><div class="usd">$ 9,50</div><div class="bs">Bs 403,75</div></div>
+                <span class="badge-estado entrega"><span class="dot"></span>Entrega</span>
+                <div class="comanda-total"><div class="usd">$ 11,25</div><div class="bs">Bs 478,13</div></div>
                 <button type="button" class="btn-row-open" aria-label="Abrir comanda 018"><i class="bi bi-chevron-right"></i></button>
               </div>
 
               <div class="comanda-row">
                 <span class="comanda-num">019</span>
                 <div class="comanda-info">
-                  <div class="comanda-cliente">María Contreras <span class="glyph">· Mesa 5</span></div>
-                  <div class="comanda-meta">1 producto · <span class="tipo" style="color:var(--accent-ghost);">Comer aquí</span></div>
+                  <div class="comanda-cliente">Lisbeth Montilla <span class="glyph">· Llevar</span></div>
+                  <div class="comanda-meta">3 productos · <span class="tipo">Llevar</span></div>
                 </div>
                 <span class="badge-estado montar"><span class="dot"></span>Montar</span>
-                <div class="comanda-total"><div class="usd">$ 5,00</div><div class="bs">Bs 212,50</div></div>
+                <div class="comanda-total"><div class="usd">$ 12,50</div><div class="bs">Bs 531,25</div></div>
                 <button type="button" class="btn-row-open" aria-label="Abrir comanda 019"><i class="bi bi-chevron-right"></i></button>
-              </div>
-
-              <div class="comanda-row">
-                <span class="comanda-num">020</span>
-                <div class="comanda-info">
-                  <div class="comanda-cliente">Pedro Maldonado <span class="glyph">· Delivery</span></div>
-                  <div class="comanda-meta">2 productos · <span class="tipo" style="color:var(--warn);">Delivery</span></div>
-                </div>
-                <span class="badge-estado cobrar"><span class="dot"></span>Cobrar</span>
-                <div class="comanda-total"><div class="usd">$ 14,00</div><div class="bs">Bs 595,00</div></div>
-                <button type="button" class="btn-row-open" aria-label="Abrir comanda 020"><i class="bi bi-chevron-right"></i></button>
               </div>
             </div>
           </div>
@@ -516,13 +291,13 @@
               <div class="panel-tasa-label">Tasa BCV del día</div>
               <div class="panel-tasa-value" id="tasaBigValue">Bs 42,50 <span>/ 1 USD</span></div>
               <div class="panel-tasa-update">
-                <button type="button" class="btn btn-ghost-brand" id="btnEditTasaBig" style="background:transparent;border-color:color-mix(in oklab, var(--bg) 25%, transparent);color:var(--bg);"><i class="bi bi-arrow-clockwise"></i> Actualizar tasa</button>
+                <button type="button" class="btn btn-ghost-brand btn-ghost-on-dark" id="btnEditTasaBig"><i class="bi bi-arrow-clockwise"></i> Actualizar tasa</button>
               </div>
             </div>
 
             <div class="card-kpi mb-4">
               <div class="kpi-label"><i class="bi bi-calendar-check"></i> Estado de jornada</div>
-              <div class="kpi-meta" style="font-size:14px;color:var(--fg-2);margin-top:12px;" id="jornadaDetalle">Apertura: 08:00 · Cierre pendiente. Caja inicial: Bs 200,00.</div>
+              <div class="kpi-meta" style="font-size:14px;color:var(--fg-2);margin-top:12px;" id="jornadaDetalle">Apertura: 08:00 · Cierre pendiente. Caja inicial: $ 50,00.</div>
             </div>
 
             <div class="card-kpi">
@@ -568,16 +343,16 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modal-surface">
         <div class="modal-header modal-header-brand">
-          <h5 class="modal-title fs-6 fw-bold" id="modalTasaTitle">Actualizar tasa BCV</h5>
+          <h3 class="modal-title fs-6 fw-bold" id="modalTasaTitle">Actualizar tasa BCV</h3>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
-          <label for="nuevaTasa" class="form-label form-label-brand fw-semibold" style="font-size:13px;color:var(--fg-2);">Tasa del día (Bs por USD)</label>
+          <label for="nuevaTasa" class="form-label form-label-brand">Tasa del día (Bs por USD)</label>
           <div class="input-group">
-            <span class="input-group-text" style="border:1.5px solid var(--border-strong);background:var(--surface);color:var(--muted);">Bs</span>
-            <input type="text" class="form-control" id="nuevaTasa" value="42,50" style="border:1.5px solid var(--border-strong);color:var(--fg);" aria-describedby="tasaHelp" />
+            <span class="input-group-text input-brand-addon">Bs</span>
+            <input type="text" class="form-control input-brand" id="nuevaTasa" value="42,50" aria-describedby="tasaHelp" />
           </div>
-          <div id="tasaHelp" class="form-text" style="color:var(--muted);font-family:var(--font-mono);font-size:12px;">Se aplica de inmediato a precios y montos.</div>
+          <div id="tasaHelp" class="form-text help-text">Se aplica de inmediato a precios y montos.</div>
         </div>
         <div class="modal-footer modal-footer-brand">
           <button type="button" class="btn btn-ghost-brand" data-bs-dismiss="modal">Cancelar</button>
@@ -621,7 +396,7 @@
           workStatus.className = 'work-status open';
           workStatusText.textContent = 'Jornada abierta';
           btnJornadaText.textContent = 'Cerrar jornada';
-          jornadaDetalle.textContent = 'Apertura: 08:00 · Cierre pendiente. Caja inicial: Bs 200,00.';
+          jornadaDetalle.textContent = 'Apertura: 08:00 · Cierre pendiente. Caja inicial: $ 50,00.';
         }
       });
 
