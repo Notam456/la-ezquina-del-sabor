@@ -22,7 +22,7 @@ class DashboardController extends Controller
             ->count();
 
         $comandasActivas = Comanda::whereNotIn('estado_comanda', ['cerrada', 'cancelada'])
-            ->with('cliente', 'usuario')
+            ->with('cliente', 'usuario', 'comandaDetalles')
             ->latest()
             ->get();
 

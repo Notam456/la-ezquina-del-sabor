@@ -58,8 +58,8 @@
                 <div class="comanda-row">
                     <span class="comanda-num">{{ str_pad($comanda->numero_correlativo_diario, 3, '0', STR_PAD_LEFT) }}</span>
                     <div class="comanda-info">
-                        <div class="comanda-cliente">{{ $comanda->cliente->nombre ?? $comanda->nombre_cliente_temporal ?? 'Sin cliente' }} <span class="glyph">&middot; {{ $comanda->mesa ? 'Mesa ' . $comanda->mesa : $comanda->tipo_entrega }}</span></div>
-                        <div class="comanda-meta">{{ $comanda->items->count() }} producto{{ $comanda->items->count() !== 1 ? 's' : '' }} &middot; <span class="tipo">{{ ucfirst($comanda->tipo_entrega) }}</span></div>
+                        <div class="comanda-cliente">{{ $comanda->cliente->nombre ?? $comanda->nombre_cliente_temporal ?? 'Sin cliente' }}</div>
+                        <div class="comanda-meta">{{ $comanda->comandaDetalles->count() }} producto{{ $comanda->comandaDetalles->count() !== 1 ? 's' : '' }} &middot; <span class="tipo">{{ ucfirst($comanda->estado_comanda) }}</span></div>
                     </div>
                     @php
                         $estadoClass = match($comanda->estado_comanda) {
@@ -74,7 +74,7 @@
                         <div class="usd">${{ number_format($comanda->total_usd, 2, ',', '.') }}</div>
                         <div class="bs">Bs {{ number_format($comanda->total_usd * (float)$tasaBcv, 2, ',', '.') }}</div>
                     </div>
-                    <a href="{{ route('comandas.show', $comanda) }}" class="btn-row-open" aria-label="Abrir comanda {{ $comanda->numero_correlativo_diario }}"><i class="bi bi-chevron-right"></i></a>
+                    <a href="{{ route('comandas.index') }}" class="btn-row-open" aria-label="Abrir comanda {{ $comanda->numero_correlativo_diario }}"><i class="bi bi-chevron-right"></i></a>
                 </div>
             @empty
                 <div style="padding:32px 20px; text-align:center; color:var(--muted);">
