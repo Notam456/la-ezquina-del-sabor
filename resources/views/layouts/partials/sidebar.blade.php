@@ -16,7 +16,7 @@
             <span>Comandas</span>
         </a>
         <a href="{{ route('cocina.index') }}" class="nav-item" data-module="cocina">
-            <i class="bi bi-chef-hat"></i>
+            <i class="bi bi-fire"></i>
             <span>Cocina</span>
         </a>
         <div class="nav-section-label">Gestión</div>

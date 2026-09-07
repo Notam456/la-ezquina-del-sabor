@@ -8,6 +8,8 @@ use App\Http\Controllers\Catalogo\CategoriaController;
 use App\Http\Controllers\Catalogo\RecetaController;
 use App\Http\Controllers\Catalogo\ComboController;
 use App\Http\Controllers\Inventario\MateriaPrimaController;
+use App\Http\Controllers\Inventario\CompraController;
+use App\Http\Controllers\Inventario\MermaController;
 use App\Http\Controllers\Clientes\ClienteController;
 use App\Http\Controllers\Sistema\UsuarioController;
 use App\Http\Controllers\ComandaController;
@@ -50,6 +52,12 @@ Route::middleware(['auth'])->group(function () {
         ->except(['show', 'create', 'edit'])
         ->names('inventario.materias-primas');
     Route::get('/inventario/materias-primas/data', [MateriaPrimaController::class, 'data'])->name('inventario.materias-primas.data');
+
+    Route::post('/inventario/compras', [CompraController::class, 'store'])->name('inventario.compras.store');
+    Route::get('/inventario/compras/data', [CompraController::class, 'data'])->name('inventario.compras.data');
+
+    Route::post('/inventario/mermas', [MermaController::class, 'store'])->name('inventario.mermas.store');
+    Route::get('/inventario/mermas/data', [MermaController::class, 'data'])->name('inventario.mermas.data');
 
     Route::resource('clientes', ClienteController::class)->except(['show', 'create', 'edit']);
     Route::get('/clientes/data', [ClienteController::class, 'data'])->name('clientes.data');

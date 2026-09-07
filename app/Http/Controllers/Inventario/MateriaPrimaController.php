@@ -12,7 +12,8 @@ class MateriaPrimaController extends Controller
 {
     public function index(Request $request)
     {
-        return view('inventario.materias-primas');
+        $materiasPrimas = MateriaPrima::orderBy('nombre')->get();
+        return view('inventario.materias-primas', compact('materiasPrimas'));
     }
 
     public function data(Request $request)

@@ -7,12 +7,11 @@
     </div>
     <div class="topbar-right">
         <div class="tasa-chip">
-            <i class="bi bi-currency-dollar"></i>
+            <span class="tasa-label">BCV</span>
             <span id="tasaBcv">{{ $tasaBcv ?? '42.50' }}</span>
-            <small>Bs/USD</small>
         </div>
-        <div class="work-status">
-            <span class="work-dot"></span>
+        <div class="work-status open">
+            <span class="dot"></span>
             Jornada Abierta
         </div>
         <form action="{{ route('logout') }}" method="POST" style="display:inline">

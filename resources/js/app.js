@@ -45,6 +45,8 @@ window.cargarModalEdicion = cargarModalEdicion;
 
 function setTipoPrecio(tipo) {
     var fTipo = document.getElementById('fTipoPrecio');
+    var btnMargen = document.getElementById('tipoMargen');
+    var btnDefinido = document.getElementById('tipoDefinido');
     if (tipo === 'margen') {
         document.getElementById('bloqueMargen').style.display = 'block';
         document.getElementById('bloqueDefinido').style.display = 'none';
@@ -54,6 +56,8 @@ function setTipoPrecio(tipo) {
         document.getElementById('bloqueDefinido').style.display = 'block';
         if (fTipo) fTipo.value = 'definido';
     }
+    if (btnMargen) btnMargen.classList.toggle('active', tipo === 'margen');
+    if (btnDefinido) btnDefinido.classList.toggle('active', tipo === 'definido');
     updatePrecioUsd();
 }
 window.setTipoPrecio = setTipoPrecio;
@@ -127,19 +131,39 @@ function toggleSidebar() {
 }
 window.toggleSidebar = toggleSidebar;
 
-function initDataTable(tableId, url, columns) {
+function initDataTable(tableId, url, columns, filters) {
     if (typeof $.fn.DataTable !== 'undefined' && $('#' + tableId).length > 0) {
-        $('#' + tableId).DataTable({
+        var table = $('#' + tableId).DataTable({
             processing: true, serverSide: true, ajax: url,
             columns: columns, language: {
-                search: 'Buscar:', lengthMenu: 'Mostrar _MENU_ entradas',
-                info: 'Mostrando _START_ a _END_ de _TOTAL_ entradas',
+                search: '', lengthMenu: 'Mostrar _MENU_ entradas',
+                info: 'Mostrando _START_ a _END_ de _TOTAL_',
                 infoEmpty: 'Sin resultados', infoFiltered: '(filtrado de _MAX_)',
-                paginate: {first:'Primero',last:'Último',next:'Siguiente',previous:'Anterior'},
+                paginate: {
+                    first: '<i class="bi bi-chevron-double-left"></i>',
+                    last: '<i class="bi bi-chevron-double-right"></i>',
+                    next: '<i class="bi bi-chevron-right"></i>',
+                    previous: '<i class="bi bi-chevron-left"></i>'
+                },
                 zeroRecords: 'Sin resultados', loadingRecords: 'Cargando...'
             },
             responsive: true, pageLength: 15
         });
+        if (filters && typeof filters === 'object') {
+            Object.keys(filters).forEach(function(selector) {
+                var colIdx = filters[selector];
+                $(selector).on('change', function() {
+                    var val = $(this).val() || '';
+                    table.column(colIdx).search(val).draw();
+                });
+            });
+        }
+        var buscarInput = document.getElementById('buscar');
+        if (buscarInput) {
+            buscarInput.addEventListener('input', function() {
+                table.search(this.value).draw();
+            });
+        }
     }
 }
 window.initDataTable = initDataTable;
@@ -170,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('submit', function(e) {
         var form = e.target;
         if (!form.classList.contains('ajax-form')) return;
+        if (!form.reportValidity()) return;
         e.preventDefault();
 
         var url = form.getAttribute('action');

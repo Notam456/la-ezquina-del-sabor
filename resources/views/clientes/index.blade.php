@@ -3,22 +3,20 @@
 @section('content')
 <div class="page-head">
     <div>
-        <div class="page-eyebrow">Clientes</div>
+        <p class="page-eyebrow">Gestión</p>
         <h1 class="page-title">Clientes</h1>
         <p class="page-sub">Gestiona los clientes del sistema</p>
     </div>
     <div class="head-actions">
-        <button class="btn-ghost-brand" id="btnTarjetas">
-            <i class="bi bi-gift"></i> Tarjetas
-        </button>
-        <button class="btn-primary-brand" data-bs-toggle="modal" data-bs-target="#modalCliente">
-            <i class="bi bi-person-plus"></i> Nuevo cliente
-        </button>
+        <button class="btn-primary-brand" data-bs-toggle="modal" data-bs-target="#modalCliente"><i class="bi bi-person-plus"></i> Nuevo cliente</button>
     </div>
 </div>
 
-<div class="filter-bar">
-    <input type="text" id="buscar" placeholder="Buscar por nombre o teléfono…" class="form-control" style="max-width: 300px;">
+<div class="filter-card">
+    <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" id="buscar" placeholder="Buscar por nombre o teléfono…" class="input-brand" aria-label="Buscar cliente" />
+    </div>
 </div>
 
 <div class="table-panel">
@@ -39,7 +37,7 @@
 <!-- Modal Cliente -->
 <div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content modal-surface">
             <form id="formCliente" class="ajax-form" method="POST" action="{{ route('clientes.store') }}">
                 @csrf
                 <input type="hidden" name="_method" value="POST">
@@ -48,20 +46,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div style="margin-bottom:16px;">
-                        <label class="form-label-brand">Nombre <span style="color:var(--danger)">*</span></label>
-                        <input type="text" name="nombre" class="form-control input-brand" required pattern="[A-Za-záéíóúñÁÉÍÓÚÑ\s\-\.]+" minlength="2" maxlength="255">
+                    <div class="field">
+                        <label class="label">Nombre <span class="req">*</span></label>
+                        <input type="text" name="nombre" class="input-brand" required pattern="[A-Za-záéíóúñÁÉÍÓÚÑ\s\-\.]+" minlength="2" maxlength="255">
                     </div>
-                    <div style="margin-bottom:16px;">
-                        <label class="form-label-brand">Teléfono <span style="color:var(--danger)">*</span></label>
-                        <input type="text" name="telefono" class="form-control input-brand" required pattern="[0-9+\-\s]+" maxlength="20">
+                    <div class="field">
+                        <label class="label">Teléfono <span class="req">*</span></label>
+                        <input type="text" name="telefono" class="input-brand" required pattern="[0-9+\-\s]+" maxlength="20">
                     </div>
-                    <div style="margin-bottom:16px;">
-                        <label class="form-label-brand">Dirección de delivery</label>
-                        <textarea name="direccion_delivery" class="form-control textarea-brand" rows="2" maxlength="500"></textarea>
+                    <div class="field">
+                        <label class="label">Dirección de delivery</label>
+                        <textarea name="direccion_delivery" class="textarea-brand" rows="2" maxlength="500" placeholder="Dirección completa…"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer modal-footer-brand">
                     <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn-primary-brand">Guardar</button>
                 </div>
